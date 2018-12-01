@@ -1,1 +1,2 @@
+ gc .\CLIENT.CSV | select -first 1 > .\SUBCLIENT.CSV
 perl -ne 'print if (rand() < .01)' REF_MAGASIN.CSV > SUBMAGASIN.CSV
