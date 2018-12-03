@@ -36,7 +36,7 @@ clients <- read.csv("DATA_UTF-8/SUBCLIENT.CSV",sep="|",
                     header=TRUE,skipNul = T,stringsAsFactors = FALSE)
 clients[clients == ""] <- NA
 entete <- read.csv("DATA_UTF-8/SUBENTETE.CSV",sep="|",
-                    header=TRUE,skipNul = T)
+                    header=TRUE,skipNul = T,stringsAsFactors = FALSE)
 lignes <- read.csv("DATA_UTF-8/SUBLIGNES.CSV",sep="|",
                     header=TRUE,skipNul = T)
 
