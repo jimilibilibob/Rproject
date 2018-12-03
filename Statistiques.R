@@ -25,17 +25,19 @@ xlsx.addTitle<-function(sheet, rowIndex, title, titleStyle){
 }
 
 
-articles <- read.csv("DATA/REF_ARTICLE.CSV",sep="|",
-                     header=TRUE,skipNul = T,encoding = "UTF-8")
-articles <- articles[-c(1),]
-magasin <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",
-                    header=TRUE,skipNul = T,encoding = "UTF-8")
-clients <- read.csv("DATA/SUBCLIENT.CSV",sep="|",
-                    header=TRUE,skipNul = T,encoding = "UTF-8")
-entete <- read.csv("DATA/SUBENTETE.CSV",sep="|",
-                    header=TRUE,skipNul = T,encoding = "UTF-8")
-lignes <- read.csv("DATA/SUBLIGNES.CSV",sep="|",
-                    header=TRUE,skipNul = T,encoding = "UTF-8")
+#articles <- read.csv("DATA/REF_ARTICLE.CSV",sep="|",
+#                     header=TRUE,skipNul = T,encoding = "UTF-8")
+#articles <- articles[-c(1),]
+#magasin <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",
+#                    header=TRUE,skipNul = T,encoding = "UTF-8")
+#clients <- read.csv("DATA/SUBCLIENT.CSV",sep="|",
+#                    header=TRUE,skipNul = T,encoding = "UTF-8")
+#entete <- read.csv("DATA/SUBENTETE.CSV",sep="|",
+#                    header=TRUE,skipNul = T,encoding = "UTF-8")
+#lignes <- read.csv("DATA/SUBLIGNES.CSV",sep="|",
+#                    header=TRUE,skipNul = T,encoding = "UTF-8")
+
+sheet1 <- xlsx::createSheet(wb, sheetName = "Statistiques")
 
 #ARTICLES
 
@@ -201,14 +203,14 @@ xlsx::setColumnWidth(sheet1, colIndex=c(1:15), colWidth=20)
 
 
 #Ligne
-sheet1 <- xlsx::createSheet(wb, sheetName = "Statistiques")
+
 # Add title
-xlsx.addTitle(sheet1, rowIndex=66, title="Statistiques sur ARTICLES",titleStyle = TITLE_STYLE)
+xlsx.addTitle(sheet1, rowIndex=66, title="Statistiques sur Sub Ligne",titleStyle = TITLE_STYLE)
 # Add sub title
 xlsx.addTitle(sheet1, rowIndex=67,title="Tableau descriptif",titleStyle = SUB_TITLE_STYLE)
 
 
-colcat_ligne <- colnames(entete)[!colnames(entete) %in% c("QUANTITE","MONTANTREMISE","TOTAL","MARGESORTIE")]
+colcat_ligne <- colnames(lignes)[!colnames(lignes) %in% c("QUANTITE","MONTANTREMISE","TOTAL","MARGESORTIE")]
 colquali_ligne <- c("QUANTITE","MONTANTREMISE","TOTAL","MARGESORTIE")
 
 
@@ -216,7 +218,7 @@ statcat_ligne <- data.frame(matrix(nrow = 2,ncol=length(colnames(colcat_ligne)))
 colnames(statcat_ligne)<- colnames(colcat_ligne)
 
 
-for (i in colnames(colcat_ligne)){
+for (i in colcat_ligne){
   statcat_ligne[[i]]<- c(length(unique(lignes[[i]])),
                 sum(is.na(lignes[[i]]))/length(lignes[[i]])*100)
 }
@@ -255,16 +257,6 @@ addDataFrame(statcat_ligne, sheet1, startRow=71, startColumn=1,
 addDataFrame(statquali_ligne, sheet1, startRow=76, startColumn=1, 
              colnamesStyle = TABLE_COLNAMES_STYLE,
              rownamesStyle = TABLE_ROWNAMES_STYLE)
-
-
-
-
-
-
-
-
-
-
 
 
 xlsx::saveWorkbook(wb, "temp.xlsx")
