@@ -1,7 +1,8 @@
-require(dplyr)
-require(readxl)
-require(assertthat)
-require(xlsx)
+
+library(dplyr)
+library(readxl)
+library(assertthat)
+library(xlsx)
 
 
 wb<-createWorkbook(type="xlsx")
@@ -25,17 +26,18 @@ xlsx.addTitle<-function(sheet, rowIndex, title, titleStyle){
 }
 
 
-#articles <- read.csv("DATA/REF_ARTICLE.CSV",sep="|",
-#                     header=TRUE,skipNul = T,encoding = "UTF-8")
-#articles <- articles[-c(1),]
-#magasin <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",
-#                    header=TRUE,skipNul = T,encoding = "UTF-8")
-#clients <- read.csv("DATA/SUBCLIENT.CSV",sep="|",
-#                    header=TRUE,skipNul = T,encoding = "UTF-8")
-#entete <- read.csv("DATA/SUBENTETE.CSV",sep="|",
-#                    header=TRUE,skipNul = T,encoding = "UTF-8")
-#lignes <- read.csv("DATA/SUBLIGNES.CSV",sep="|",
-#                    header=TRUE,skipNul = T,encoding = "UTF-8")
+articles <- read.csv("DATA_UTF-8/REF_ARTICLE.CSV",sep="|",
+                     header=TRUE,skipNul = T,stringsAsFactors = FALSE)
+articles <- articles[-c(1),]
+magasin <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",
+                    header=TRUE,skipNul = T,stringsAsFactors = FALSE)
+clients <- read.csv("DATA_UTF-8/SUBCLIENT.CSV",sep="|",
+                    header=TRUE,skipNul = T,stringsAsFactors = FALSE)
+clients[clients == ""] <- NA
+entete <- read.csv("DATA_UTF-8/SUBENTETE.CSV",sep="|",
+                    header=TRUE,skipNul = T,stringsAsFactors = FALSE)
+lignes <- read.csv("DATA_UTF-8/SUBLIGNES.CSV",sep="|",
+                    header=TRUE,skipNul = T)
 
 sheet1 <- xlsx::createSheet(wb, sheetName = "Statistiques")
 
@@ -105,23 +107,37 @@ for (i in colcat){
                 sum(is.na(clients[[i]]))/length(clients[[i]])*100)
 }
 
-statdate <- data.frame(matrix(nrow = 3,ncol=length(coldate)))
-colnames(statdate)<- coldate
-
+statdateMM <- data.frame(matrix(nrow = 2,ncol=length(coldate)))
+colnames(statdateMM)<- coldate
 
 for (i in coldate){
-  statdate[[i]]<- c(min(as.Date(clients[[i]],"%d/%m/%Y"),na.rm = TRUE),max(as.Date(clients[[i]],"%d/%m/%Y"),na.rm = TRUE),
-                sum(is.na(clients[[i]]))/length(clients[[i]])*100)
+  statdateMM[[i]]<- c(min(clients[[i]],na.rm = TRUE),
+                    max(clients[[i]],na.rm = TRUE))
+  #vec<-c(vec,(sum(is.na(clients[[i]]))/length(clients[[i]])*100))
 }
 
+statdateNA <- data.frame(matrix(nrow = 1,ncol=length(coldate)))
+colnames(statdateNA)<- coldate
+
+for (i in coldate){
+  statdateNA[[i]]<-(sum(is.na(clients[[i]]))/length(clients[[i]])*100)
+}
+
+as.Date.numeric(sum(is.na(clients[[i]]))/length(clients[[i]])*100)
+
 row.names(statcat) <- c("Unique values","Taux de valeurs manquantes")
-row.names(statdate) <- c("Minimum","Maximum","Taux de valeurs manquantes")
+row.names(statdateMM) <- c("Minimum","Maximum")
+row.names(statdateNA) <- c("Taux de valeurs manquantes")
+
 
 # Creation de la feuille Statistiques"
 addDataFrame(statcat, sheet1, startRow=25, startColumn=1, 
              colnamesStyle = TABLE_COLNAMES_STYLE,
              rownamesStyle = TABLE_ROWNAMES_STYLE)
-addDataFrame(statdate, sheet1, startRow=30, startColumn=1, 
+addDataFrame(statdateMM, sheet1, startRow=30, startColumn=1, 
+             colnamesStyle = TABLE_COLNAMES_STYLE,
+             rownamesStyle = TABLE_ROWNAMES_STYLE)
+addDataFrame(statdateNA, sheet1, startRow=33, startColumn=1, 
              colnamesStyle = TABLE_COLNAMES_STYLE,
              rownamesStyle = TABLE_ROWNAMES_STYLE)
 
@@ -147,27 +163,29 @@ for (i in colcat_entete){
                    sum(is.na(entete[[i]]))/length(entete[[i]])*100)
 }
 
-statdate_entete <- data.frame(matrix(nrow = 3,ncol=length(coldate_entete)))
+statdate_entete <- data.frame(matrix(nrow = 2,ncol=length(coldate_entete)))
 colnames(statdate_entete)<- coldate_entete
 
 
 for (i in coldate_entete){
   statdate_entete[[i]]<- c(
-    min(as.Date(entete[[i]]),na.rm = TRUE),
-    max(as.Date(entete[[i]]),na.rm = TRUE),
-    as.numeric(sum(is.na(entete[[i]]))/length(entete[[i]])*100))
+    min(entete[[i]],na.rm = TRUE),
+    max(entete[[i]],na.rm = TRUE))
+}
 
-  
 
+statdate_entete_NA <- data.frame(matrix(nrow = 1,ncol=length(coldate_entete)))
+colnames(statdate_entete_NA)<- coldate_entete
+
+for (i in coldate_entete){
+  statdate_entete_NA[[i]]<-(sum(is.na(entete[[i]]))/length(entete[[i]])*100)
 }
 
 statquanti_entete <- data.frame(matrix(nrow = 10,ncol=length(colquali_entete)))
 colnames(statquanti_entete)<- colquali_entete
 
-
-
 for (i in colquali_entete){
-  entete_num <- as.numeric(sub(",", ".", levels(entete[[i]])[entete[[i]]]))
+  entete_num <- as.numeric(sub(",", ".", entete[[i]]))
   statquanti_entete[[i]]<- c(
     length(entete_num),
     min(entete_num,na.rm = TRUE),
@@ -185,7 +203,8 @@ for (i in colquali_entete){
 }
 
 row.names(statcat_entete) <- c("Unique values","Taux de valeurs manquantes")
-row.names(statdate_entete) <- c("Minimum","Maximum","Taux de valeurs manquantes")
+row.names(statdate_entete) <- c("Minimum","Maximum")
+row.names(statdate_entete_NA) <- c("Taux de valeurs manquantes")
 row.names(statquanti_entete) <- c("Effectif","Minimum","Min1","Maximum","Max1","Moyenne","Mediane","Ecart type","coefficient de variation","Taux de valeurs manquantes")
 
 # Creation de la feuille Statistiques"
@@ -193,6 +212,9 @@ addDataFrame(statcat_entete, sheet1, startRow=42, startColumn=1,
              colnamesStyle = TABLE_COLNAMES_STYLE,
              rownamesStyle = TABLE_ROWNAMES_STYLE)
 addDataFrame(statdate_entete, sheet1, startRow=47, startColumn=1, 
+             colnamesStyle = TABLE_COLNAMES_STYLE,
+             rownamesStyle = TABLE_ROWNAMES_STYLE)
+addDataFrame(statdate_entete_NA, sheet1, startRow=50, startColumn=1, 
              colnamesStyle = TABLE_COLNAMES_STYLE,
              rownamesStyle = TABLE_ROWNAMES_STYLE)
 addDataFrame(statquanti_entete, sheet1, startRow=53, startColumn=1, 
@@ -260,7 +282,6 @@ addDataFrame(statquali_ligne, sheet1, startRow=76, startColumn=1,
 
 
 xlsx::saveWorkbook(wb, "temp.xlsx")
-
 
 
 
