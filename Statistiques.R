@@ -31,12 +31,12 @@ articles <- read.csv("DATA_UTF-8/REF_ARTICLE.CSV",sep="|",
 articles <- articles[-c(1),]
 magasin <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",
                     header=TRUE,skipNul = T,stringsAsFactors = FALSE)
-clients <- read.csv("DATA_UTF-8/SUBCLIENT.CSV",sep="|",
+clients <- read.csv("DATA/CLIENT.CSV",sep="|",
                     header=TRUE,skipNul = T,stringsAsFactors = FALSE)
 clients[clients == ""] <- NA
-entete <- read.csv("DATA_UTF-8/SUBENTETE.CSV",sep="|",
+entete <- read.csv("DATA/a.CSV",sep="|",
                     header=TRUE,skipNul = T,stringsAsFactors = FALSE)
-lignes <- read.csv("DATA_UTF-8/SUBLIGNES.CSV",sep="|",
+lignes <- read.csv("DATA/LIGNES_TICKET_V4.CSV",sep="|",
                     header=TRUE,skipNul = T)
 
 sheet1 <- xlsx::createSheet(wb, sheetName = "Statistiques")
@@ -284,7 +284,6 @@ addDataFrame(statquali_ligne, sheet1, startRow=76, startColumn=1,
 xlsx::saveWorkbook(wb, "temp.xlsx")
 
 
-
-
+#[entete_num!=0]
 
 
