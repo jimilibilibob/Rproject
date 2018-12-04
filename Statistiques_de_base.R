@@ -1,4 +1,3 @@
-
 library(dplyr)
 library(readxl)
 library(assertthat)
@@ -124,7 +123,6 @@ for (i in coldate){
   statdateNA[[i]]<-(sum(is.na(clients[[i]]))/length(clients[[i]])*100)
 }
 
-as.Date.numeric(sum(is.na(clients[[i]]))/length(clients[[i]])*100)
 
 row.names(statcat) <- c("Unique values","Taux de valeurs manquantes")
 row.names(statdateMM) <- c("Minimum","Maximum")
