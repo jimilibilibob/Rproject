@@ -1,13 +1,15 @@
-setwd("C:/Users/timti/Documents/R/Rproject")
+#setwd("C:/Users/timti/Documents/R/Rproject")
 
 library(dplyr)
 library(readxl)
 library(xlsx)
 
-mag <- read.csv("DATA_complet/REF_MAGASIN.CSV",sep="|",stringsAsFactors = FALSE)
-clients <- read.csv("DATA_complet/CLIENT.CSV",sep="|",stringsAsFactors = FALSE)
-entetes <- read.csv("DATA_complet/ENTETE.CSV",sep="|",stringsAsFactors = FALSE,dec=',', skipNul = T)
-#lignes <- read.csv("LIGNES_TICKET_V4.CSV",sep="|",stringsAsFactors = FALSE)
+mag <- read.csv("DATA/REF_MAGASIN.CSV",sep="|",stringsAsFactors = FALSE)
+clients <- read.csv("DATA/SUBCLIENT.CSV",sep="|",stringsAsFactors = FALSE)
+entetes <- read.csv("DATA/SUBENTETE.CSV",sep="|",stringsAsFactors = FALSE,dec=',')
+lignes <- read.csv("DATA/SUBLIGNES.CSV",sep="|",stringsAsFactors = FALSE)
+articles <- read.csv("DATA/REF_ARTICLE.CSV",sep="|",stringsAsFactors = FALSE)
+
 entetes$TIC_TOTALTTC <- as.numeric(entetes$TIC_TOTALTTC)
 #entetes <- sample_n(entetes, 800000)
 
@@ -24,26 +26,45 @@ nrow(clients[clients$VIP==1,])/nrow(clients)
 
 summary(entetes)
 
+#COURBE COUNT
 temp <- entetes %>% group_by(IDCLIENT,TIC_DATE) %>% summarize(sum = sum(TIC_TOTALTTC)) 
 temp$YEAR <- format(as.Date(temp$TIC_DATE),"%Y")
 temp$MONTH <- format(as.Date(temp$TIC_DATE),"%m")
 temp$count <- 1
 
+
 test <- temp %>% group_by(IDCLIENT,YEAR,MONTH) %>% summarize(count = sum(count)) 
 
-curve <- test %>% group_by(YEAR,MONTH) %>% summarize(MIN = min(count),
+curveCOUNT <- test %>% group_by(YEAR,MONTH) %>% summarize(MIN = min(count),
                                                 MAX = max(count), 
                                                 MOY = mean(count))
+axe <- paste(curveCOUNT$MONTH,curveCOUNT$YEAR,sep="/")
 
-curve$DAT <- 1:24
+curveCOUNT$DAT <- 1:24
+plot(curveCOUNT$DAT, curveCOUNT$MOY,type="l",col="red",main="Moyenne de visite par clients",
+     xlab="Mois", ylab="Prix")
 
-plot.ts(curve[,c("MIN","MOY","MAX")])
+#COURBE CA
+temp <- entetes %>% group_by(IDCLIENT,TIC_DATE) %>% summarize(sum = sum(TIC_TOTALTTC)) 
+temp$YEAR <- format(as.Date(temp$TIC_DATE),"%Y")
+temp$MONTH <- format(as.Date(temp$TIC_DATE),"%m")
+temp$count <- 1
 
-curve[,c("MONTH","MIN","MOY","MIN")]
+curveCA <- temp %>% group_by(YEAR,MONTH) %>% summarize(MIN = min(sum),
+                                                     MAX = max(sum), 
+                                                     MOY = mean(sum))
 
-plot(curve$DAT,ylim=range(min(entetes$TIC_TOTALTTC):max(entetes$TIC_TOTALTTC)),
-     curve$MIN,type="l",col="red")
-lines(curve$DAT,curve$MAX,col="green")
-lines(curve$DAT,curve$MOY,col="blue")
+curveCA$DAT <- 1:24
 
-plot(curve$DAT, curve$MOY,type="l",col="red")
+plot(curveCA$DAT,ylim=range(min(entetes$TIC_TOTALTTC):max(entetes$TIC_TOTALTTC)),
+     curveCA$MIN,type="l",col="red",main="Moyenne/MIN/MAX du CA par clients",
+     xlab="Mois", ylab="Prix")
+lines(curveCA$DAT,curveCA$MAX,col="green")
+lines(curveCA$DAT,curveCA$MOY,col="blue")
+
+plot(curveCA$DAT, curveCA$MOY,type="l",col="red",main="Moyenne du CA par clients",
+     xlab="Mois", ylab="Prix")
+
+plot(curveCA$DAT,curveCA$MOY/curveCOUNT$MOY,type="l",main="Panier Moyen",
+     xlab="Mois", ylab="Prix du panier moyen",col="red")
+
