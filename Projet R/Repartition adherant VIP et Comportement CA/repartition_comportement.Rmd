@@ -6,7 +6,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("C:/Users/Juliette/Desktop/MBA/Data Projet")
 ```
 
 #Set up 
@@ -26,7 +25,8 @@ Nous avons 5 bases de données structurées de la manière suivante :
 ![Caption for the picture.](structure.png)
 
 ```{r data}
-client <- read.csv("CLIENT.csv",sep="|")
+client <- fread("CLIENT.csv",sep="|")
+entetes <- fread("ENTETES_TICKET_V4.CSV",sep="|",dec=",")
 ```
 Nous devons ensuite gérer les formats des dates :
 ```{r date}
@@ -96,3 +96,16 @@ plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type=
 ## 1.2 Comportement du CA GLOBAL par client N-2 vs N-1
 
 **Instruction : Constituer une boite à moustache pour chaque année (N-2 et N-1) comparant le CA TOTAL (TTC) des clients (sommer les achats par client par années)**
+
+```{r 1.2 PLOT}
+entetes <- data.table(entetes)
+client_CA <- entetes[,list(TOTALCA = sum(TIC_TOTALTTC)),by=list(IDCLIENT,year(TIC_DATE))]
+
+plot_ly(type="box") %>%
+  add_boxplot(y=~client_CA[client_CA$year==2016,]$TOTALCA,
+              boxpoints=FALSE,name="2016") %>%
+  add_boxplot(y=~client_CA[client_CA$year==2017,]$TOTALCA,
+              boxpoints=FALSE,name="2017") %>%
+  layout(title="Boite à moustache du CA TOTAL des clients par année",
+         yaxis=list(title="CA Total des clients"))
+```
