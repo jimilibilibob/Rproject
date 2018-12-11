@@ -1,0 +1,127 @@
+---
+title: "repartition_sexe_age"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/timti/Documents/R/Rproject")
+```
+
+#Set up 
+
+## Import des libraries
+
+```{r libraries, message=FALSE}
+require(dplyr)
+require(ggplot2)
+```
+
+## Declaration import des données et des variables 
+
+Import de la base clients
+```{r import}
+  clients <- read.csv("DATA_COMPLET/CLIENT.CSV",sep="|",stringsAsFactors = FALSE)
+```
+
+Création de la table clients_r avec les civilité corrigées
+Création du vecteur sexe
+Création du vecteur age
+Création de l'index de la table resultat
+```{r data}
+clients_r<-clients%>%mutate(CIVILITE_r=recode(`CIVILITE`,
+                                              "MADAME" = "femme",
+                                              "Mme" = "femme",
+                                              "madame" = "femme",
+                                              "monsieur" = "homme",
+                                              "Mr" = "homme",
+                                              "MONSIEUR" = "homme"))
+
+sexe <- c()
+age <- c() 
+c <- 1
+```
+
+# 1 - Recuperation des données
+## Table résultat et variables
+
+Création de la table data 
+```{r data result}
+for(i in c(1:nrow(clients_r))){
+  if(clients_r$DATENAISSANCE[i] != ""){
+    age_c <- 2018 - as.numeric(format(as.Date(clients_r$DATENAISSANCE[i], tryFormats = c("%d/%m/%Y")),"%Y"))
+    if(!is.na(clients_r$CIVILITE_r[i]) &&  age_c >17 && age_c < 99){
+      sexe[c] <- clients_r$CIVILITE_r[i]
+      age[c] <- age_c
+      c <- c+1
+    }
+  }
+}
+
+```
+Déclaration nécéssaire à la création des plots
+```{r variable plot}
+age_group <- cut(age,seq(18,98,10), include.lowest= TRUE, right = FALSE)
+data <- data.frame(sexe = sexe,age = age, age_group = age_group)
+
+row_data <- as.numeric(nrow(data))
+
+
+breaks <- seq(-100, 100, by=2)
+labels <- c(seq(100, 2, by=-2),seq(0, 100, by=2))
+data_femme <- subset(data,sexe=="femme")
+data_homme <- subset(data,sexe=="homme")
+```
+
+# 2 - Graphiques
+
+Afin de ne pas prendre en compte des données qui pourraient être aberrantes, nous avons choisis de modéliser la répartition pour des clients dont l'âge est compris entre 18 et 98 ans.
+
+## Plot de répartition par sexe
+
+La proportion est calculée par rapport à une population de référence (homme ou femme, entre 18 et 98 ans). Par exemple, 23,56 % des femmes ont entre 48ans et 58 ans (exclus).
+
+```{r répartion_sexe, echo=FALSE}
+gg_par_sexe <-  ggplot(data) +
+  aes(x=age_group,fill=sexe) +
+  
+  geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/sum(..count..)*-100) )) + 
+  geom_text(data = subset(data,sexe=="femme"), stat = "count", aes(colour="femme", label = round(..count../sum(..count..)*100,2), y = (..count..)/sum(..count..)*-100),  hjust = -0.3)+
+ 
+  
+  geom_bar(data = subset(data,sexe=="homme"),aes(y = (..count..)/sum(..count..)*100)) +
+  geom_text(data = subset(data,sexe=="homme"),stat = "count", aes(colour="homme", label = round(..count../sum(..count..)*100,2), y = (..count..)/sum(..count..)*100),  hjust = 1.3)+
+  scale_y_continuous(breaks=breaks, labels=labels)+
+  scale_fill_manual(values = c("pink","blue")) + 
+  ylab("Proportion par sexe (en %)")+
+  xlab("Age")+
+  coord_flip()
+plot(gg_par_sexe)
+```
+
+## Plot de répartition globale
+
+La proportion est calculée par rapport à la population total (agé entre 18 et 98 ans). Par exemple, 14,14 % de la population sont des femmes ont entre 48 ans et 58 ans (exclus).
+
+```{r répartion_global, echo=FALSE}
+
+gg_global<-  ggplot(data) +
+  aes(x=age_group,fill=sexe) +
+  
+  geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/row_data*-100) )) + 
+  geom_text(data = subset(data,sexe=="femme"), stat = "count", aes(colour="femme" ,label = round(..count../row_data*100,2), y = (..count..)/row_data*-100),  hjust = -0.4)+
+  
+  
+  geom_bar(data = subset(data,sexe=="homme"),aes(y = (..count..)/row_data*100)) +
+  geom_text(data = subset(data,sexe=="homme"),stat = "count", aes(colour="homme" , label = round(..count../row_data*100,2), y = (..count..)/row_data*100),  hjust = 1.3)+
+  
+  scale_y_continuous(breaks=breaks, labels=labels)+
+  scale_fill_manual(values = c("pink","blue")) + 
+  xlab("Age")+
+  ylab("Proportion global (en %)")+
+  coord_flip()
+plot(gg_global)
+```
+
