@@ -1,8 +1,15 @@
-library(dplyr)
-library(readxl)
-library(assertthat)
-library(xlsx)
+# Inclure le chargement du fichier paramètres qui contient :
+# - Le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+source("Parametres.R")
+source("DistanceGeo.r")
 
+#library(dplyr)
+#library(data.table)
+#library(readxl)
+#library(assertthat)
+#library(xlsx)
+
+getwd()
 
 wb<-createWorkbook(type="xlsx")
 # Define some cell styles
@@ -282,7 +289,30 @@ addDataFrame(statquali_ligne, sheet1, startRow=76, startColumn=1,
 
 xlsx::saveWorkbook(wb, "temp.xlsx")
 
+#---------------------------------------------------------------------
 
+correspondance_INSEE_CP <- fread("DATA/correspondance-code-insee-code-postal.csv", sep = ";", 
+                 header = TRUE, stringsAsFactors = FALSE)
+
+
+bobo <- correspondance_INSEE_CP[`Code INSEE` == 32460, list(`Code INSEE`, geo_point_2d)]
+
+bobosplit <- correspondance_INSEE_CP[, list(geo_point_2d)]
+
+library(dplyr)
+library(tidyr)
+#bobodf <- data.frame(x = c(NA, "a.b", "a.d", "b.c"))
+bobosplitDT <- as.data.frame(bobosplit)
+jjjjjj <- bobosplitDT$geo_point_2d[1]
+kkkkkk <- unlist(strsplit(bobosplitDT$geo_point_2d[1], ", "))
+
+#twoColums <- bobosplitDT %>% separate(bobosplitDT$geo_point_2d, c("latitude", "longitude"), sep=',')
+twoColums <- bobosplitDT %>% separate(bobosplitDT$geo_point_2d[1], c("latitude", "longitude"), sep=',')
+#twoColums <- unlist(strsplit(bobosplitDT$geo_point_2d, ","))
+#myVector <- correspondance_INSEE_CP[,factor(geo_point_2d)] 
+
+df <- data.frame(x = c("10.00, 12.11", "11.11, 12.22", "11.33, 13.33", "14.44, 14.42"))
+df %>% separate(x, c("A", "B"), sep=',')
 
 #[entete_num!=0]
 
