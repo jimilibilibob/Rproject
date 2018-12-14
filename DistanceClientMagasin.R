@@ -1,3 +1,30 @@
+# ---------------------------------------------------------------------------------------
+#     Fichier : DistanceClientMagasin.r
+# Développeur : Nicolas Robin.
+#        Date : 14 décembre 2018.
+# Description : Ce script renferme l'ensemble des étapes nécessaires demandées 
+#               dans la partie : 2.2	Distance CLIENT / MAGASIN.
+#
+# Objectif    : Calculer la distance qui existe entre le magasin et le client.
+# Enoncé      : Les infos disponibles pour le moment sont : 
+#               -	la ville du magasin
+#               -	le code insee du client
+#               Il faut télécharger les données GPS des villes et code-insee pour pouvoir calculer la distance :
+#                -	https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal/
+#
+#               Une fois les données acquises, il faut lier les données GPS composé de la latitude et de la 
+#               longitude au client et au magasin.
+#               (Constituer pour chaque client et chaque magasin 2 colonnes : latitude et longitude).
+#
+#               Créer une fonction qui détermine la distance entre 2 points.
+#               La fonction doit prendre 4 variable en compte : latitude1, longitude1, latitude2, longitude2.
+#
+#               Pour savoir si la fonction est correcte : http://www.lexilogos.com/calcul_distances.htm
+#
+#               Constituer une représentation (tableau ou graphique --> au choix) représentant le nombre de client par 
+#               distance : 0 à 5km, 5km à 10km, 10km à 20km, 20km à 50km, plus de 50km.
+# ---------------------------------------------------------------------------------------
+
 # Inclure le chargement du fichier paramètres qui contient :
 # - Le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
 source("Parametres.R")
