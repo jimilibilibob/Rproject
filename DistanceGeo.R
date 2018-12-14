@@ -118,3 +118,15 @@ distanceBarArras <- distanceGeo(
 distanceBarArras2 <- distanceGeo2(
   lat1 = 48.7642280465, lon1 = 5.16346492169,
   lat2 = 50.2771637475, lon2 = 2.71345127608)
+
+
+retourneValeurBorne <- function (laDistance)
+{
+  resultat <- "NA" 
+  
+  ifelse((laDistance >= 0.0 && laDistance <= 5.0), resultat<-"[0-5km]",
+         ifelse((laDistance > 5.0 && laDistance <= 10.0), resultat<-"]5-10km]",
+                ifelse((laDistance > 10.0 && laDistance <= 20.0), resultat<-"]10-20km]",
+                       ifelse((laDistance > 20.0 && laDistance <= 50.0), resultat<-"]20-50km]", resultat<-"+ de 50 km"))))
+  return(resultat)
+}
