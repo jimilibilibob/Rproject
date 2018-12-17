@@ -1,0 +1,304 @@
+---
+title: "2.2 Distance CLIENT / MAGASIN"
+author: "Thomas FONTAINE, Dan GOLDMAN, Juliette LEMAINS et Nicolas ROBIN"
+date: "14/12/2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=TRUE, warning=FALSE, message=FALSE)
+```
+\
+Ce markdown renferme l'ensemble de scripts qui suivent les étapes nécessaires demandées dans la partie *2.2	Distance CLIENT / MAGASIN* du projet R.
+```{r}
+
+```
+# Enoncé
+L'objectif est de calculer la distance qui existe entre le magasin et le client.\
+\
+Les informations disponibles sont :
+```{r}
+
+```
+-	la ville du magasin
+-	le code INSEE du client
+```{r}
+
+```
+Il faut télécharger les données GPS des villes et code-insee pour pouvoir calculer la distance :\
+https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal/
+```{r}
+
+```
+Une fois les données acquises, il faut lier les données GPS composé de la latitude et de la longitude au client et au magasin.\
+\
+Constituer pour chaque client et chaque magasin 2 colonnes : latitude et longitude.
+\
+Créer une fonction qui détermine la distance entre 2 points.\
+La fonction doit prendre 4 variable en compte : latitude1, longitude1, latitude2, longitude2.\
+Pour savoir si la fonction est correcte : http://www.lexilogos.com/calcul_distances.htm
+```{r}
+
+```
+
+Constituer une représentation (tableau ou graphique --> au choix) représentant le nombre de client par distance :
+```{r}
+
+```
+- 0 à 5km
+- 5km à 10km
+- 10km à 20km
+- 20km à 50km
+- plus de 50km
+\
+```{r}
+
+```
+# Programmation R
+
+### 1. Mise en place de l'environnement de travail
+
+Chargement du fichier paramètres qui permet :
+```{r}
+
+```
+- le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+- le chargement des variables des fichiers.
+
+```{r}
+source("Parametres.R")
+```
+
+### 2. Chargement de la foncton qui calcule la distance entre 2 points géographiques.
+
+Cette fonction utilise la [FORMULE DE HAVERSINE](https://fr.wikipedia.org/wiki/Formule_de_haversine) en l'état.
+
+```{r}
+source("DistanceGeo.r")
+```
+
+```{r echo=FALSE}
+setwd(chemin_access_environnement_du_projet)
+```
+
+### 3. Lecture et chargements des fichiers nécessaires
+
+```{r lecture_des_fichiers}
+magasins <- fread(chemin_fichier_magasins, sep="|", header = TRUE, stringsAsFactors = FALSE)
+
+clients <- fread(chemin_fichier_clients, sep="|", header = TRUE, stringsAsFactors = FALSE)
+clients[clients == ""] <- NA # On met tous les clients vides à "NA".
+
+# Lecture du fichier public open data de l'INSEE.
+INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE, stringsAsFactors = FALSE)
+```
+
+### 4. Construction et préparation de la "TABLE_DE_TRAVAIL"
+
+Cette table est une **version aménagée et simplifiée de la table de correspondance de l'INSEE**.\
+On récupère uniquement les 4 colonnes qui nous intéressent : CODEINSEE, Code Postal, Commune et geo_point_2d.
+
+```{r construction_preparation_de_la_table_de_travail}
+TABLE_DE_TRAVAIL <- INSEE_CP_FULL_DATATABLE[, c(1,2,3, 10)]
+```
+Pour pouvoir faire les jointures avec les tables magasinss et clients :
+```{r}
+
+```
+- on renomme la colonne "Code INSEE" en "CODEINSEE".\
+- on renomme la colonne "Code Postal" en "NUMDEPT".\
+- on renomme la colonne "Commune" en "VILLE".\
+```{r}
+setnames(TABLE_DE_TRAVAIL, old=c("Code INSEE"), new=c("CODEINSEE"))
+setnames(TABLE_DE_TRAVAIL, old=c("Code Postal"), new=c("NUMDEPT"))
+setnames(TABLE_DE_TRAVAIL, old=c("Commune"), new=c("VILLE"))
+```
+- on "splite" les informations contenues dans geo_point_2d et on les insère dans les 2 colonnes "LATITUDE" et "LONGITUDE".\
+- on élimine la colonne "geo_point_2d" devenue inutile.\
+```{r}
+TABLE_DE_TRAVAIL[, c("LATITUDE", "LONGITUDE") := tstrsplit(geo_point_2d, ", ", fixed=TRUE)]
+TABLE_DE_TRAVAIL[,geo_point_2d:=NULL] # on élimine la colonne "geo_point_2d" devenue inutile.
+```
+- on tronque le numéro de code postal pour obtenir le numéro de département qui nous permmettra plus tard de discriminer plusieurs communes françaises avec le même nom.
+```{r}
+TABLE_DE_TRAVAIL[,NUMDEPT:=str_trunc(NUMDEPT, 2, "right", "")]
+TABLE_DE_TRAVAIL[,NUMDEPT :=as.integer(NUMDEPT)] 
+```
+
+### 5. Phase de traitement des données et rétablissement de la cohérence
+
+Cette phase permet de rétablir la cohérence entre les tables TABLE_DE_TRAVAIL, magasins et clients.
+```{r}
+
+```
+- on retire tous les "-" entre les mots des villes afin de ramener de la cohérence dans le champ VILLE entre la table de travail et celui du fichier magasins.\
+- on retire tous les "-" entre les mots des villes afin de ramener de la cohérence avec les villes du fichier magasins.
+- on remplace tous les "ST" par "SAINT", toujours pour amener de la cohérence avec les villes du fichier CODE INSEE et le fichier magasins.
+- on retire le mot "CEDEX" trouvé dans certains noms de villes.
+```{r}
+TABLE_DE_TRAVAIL[,VILLE:=str_replace_all(VILLE, pattern = "-", replacement = " ")]
+
+magasins[, VILLE:=str_replace_all(VILLE, pattern = "-", replacement = " ")]
+magasins[, VILLE:=str_replace(VILLE, pattern = "^[S-T,s-t][S-T,s-t][ ]", replacement = "SAINT ")]
+magasins[, VILLE:=str_replace(VILLE, pattern = " CEDEX", replacement = " ")]
+magasins[, VILLE:=str_replace(VILLE, pattern = "^\\s+|\\s+$", replacement = "")]
+```
+- on renomme les colonnes CODESOCIETE, LIBELLEDEPARTEMENT, et MAGASIN dans l'objectif de pouvoir faire une jointure entre la TABLE_DE_TRAVAIL et la TABLE magasins
+
+```{r}
+setnames(magasins, old=c("CODESOCIETE"), new=c("MAGASINS"))
+setnames(magasins, old=c("LIBELLEDEPARTEMENT"), new=c("NUMDEPT"))
+setnames(clients, old=c("MAGASIN"), new=c("MAGASINS"))
+```
+
+### 6. Jointure entre les tables "MAGASINS" et "TABLE DE TRAVAIL"
+
+Création d'une table avec jointure entre la table MAGASINS et la TABLE DE TRAVAIL
+
+```{r}
+jointureGeoMagasins <- magasins %>% 
+  left_join(TABLE_DE_TRAVAIL, by = c("VILLE", "NUMDEPT")) %>% 
+  select(MAGASINS, NUMDEPT, VILLE, LATITUDE, LONGITUDE)
+```
+
+### 7. Mise en forme de la table "jointureGeoMagasins"
+
+Transformation de la table en DATA TABLE
+```{r}
+setDT(jointureGeoMagasins)
+```
+Renommage des colonnes
+```{r}
+setnames(jointureGeoMagasins, old=c("LATITUDE"), new=c("LATITUDEMAG"))
+setnames(jointureGeoMagasins, old=c("LONGITUDE"), new=c("LONGITUDEMAG"))
+```
+La ville "LES MILLES" dans La table MAGASINS n'est pas répertoriée dans le tableau INSEE. Je me suis permis de rajouter l'information personnellement, dans le sens où c'était la seule ville qui n'était pas répertoriée.
+```{r}
+jointureGeoMagasins[VILLE=="LES MILLES", LATITUDEMAG := "43.5042670000"]
+jointureGeoMagasins[VILLE=="LES MILLES", LONGITUDEMAG := "5.3916980000"]
+```
+
+### 8. Jointure entre les tables "CLIENTS" et "TABLE DE TRAVAIL"
+
+Création d'une table avec jointure entre la table CLIENTS et la TABLE DE TRAVAIL
+```{r}
+positionGeoClients <- clients %>% 
+  left_join(TABLE_DE_TRAVAIL, by = c("CODEINSEE")) %>% 
+  select(IDCLIENT, CODEINSEE, VILLE, MAGASINS, LATITUDE, LONGITUDE)
+```
+Transformation de la table en DATA TABLE
+```{r}
+setDT(positionGeoClients)
+```
+Renommage des colonnes
+```{r}
+setnames(positionGeoClients, old=c("LATITUDE"), new=c("LATITUDECLIENT"))
+setnames(positionGeoClients, old=c("LONGITUDE"), new=c("LONGITUDECLIENT"))
+```
+
+### 9. Jointure entre les tables "jointureGeoMagasins" et "jointureGeoClients"
+
+Création d'une table avec jointure entre la table jointureGeoMagasins" et la "jointureGeoClients". Cette table enfin finalisée va permettre de calculer la distance client <-> magasin pour chacun des clients de la table clients.
+```{r}
+jointureGeoMagasinsClients <- positionGeoClients %>% 
+  left_join(jointureGeoMagasins, by = c("MAGASINS")) %>% 
+  select(IDCLIENT, LATITUDECLIENT, LONGITUDECLIENT, MAGASINS, LATITUDEMAG, LONGITUDEMAG)
+```
+Transformation de la table en DATA TABLE
+```{r}
+setDT(jointureGeoMagasinsClients)
+```
+Les paramètres de latitude et de longitude étaient pour l'instant disponibles en tant que chaînes de caractères. Il convient donc de convertir chacun d'eux en valeur décimale avant de lancer le calcul de la distance entre la ville du client et celle du magasin.
+```{r}
+jointureGeoMagasinsClients[,LATITUDECLIENT :=as.double(LATITUDECLIENT)] 
+jointureGeoMagasinsClients[,LONGITUDECLIENT :=as.double(LONGITUDECLIENT)] 
+jointureGeoMagasinsClients[,LATITUDEMAG :=as.double(LATITUDEMAG)] 
+jointureGeoMagasinsClients[,LONGITUDEMAG :=as.double(LONGITUDEMAG)] 
+```
+
+### 10. Affectation de la distance avec la fonction distanceGeo(lat1, long1, lat2, long2)
+```{r}
+jointureGeoMagasinsClients[,DISTANCE_CLIENT_magasins
+                           :=distanceGeo(LATITUDECLIENT, LONGITUDECLIENT, LATITUDEMAG, LONGITUDEMAG)]
+```
+
+Ensuite j'aurais aimé utiliser la fonction retourneValeurBorne(distance) qui renvoie une valeur bornée sous forme de chaînes de caractères, mais la fonction ne fonctionne pas correctement lorsqu'on l'utilise avec la library data.table.
+
+- jointureGeoMagasinsClients[,BORNE_DISTANCE:=retourneValeurBorne(DISTANCE_CLIENT_magasins)]
+
+A la place j'ai utilisé cette stratégie. Cela fonctionne, mais c'est beaucoup moins élégant !
+
+```{r}
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins > 50), BORNE_DISTANCE:="plus de 50km"]
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins <= 50), BORNE_DISTANCE:="20 à 50km"]
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 20), BORNE_DISTANCE:="10 à 20km"]
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 10), BORNE_DISTANCE:="5 à 10km"]
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 5), BORNE_DISTANCE:="0 à 5km"]
+```
+
+```{r echo=FALSE}
+# Récupération du nombre total des clients.
+nb_total_clients <- jointureGeoMagasinsClients %>%
+  filter(!is.na(BORNE_DISTANCE)) %>%
+  summarise(NB_TOTAL_CLIENTS = n())
+```
+
+
+### 11. Affichage des résultats
+\
+```{r}
+
+```
+
+#### Format graphique avec amPie
+
+Création d'un data frame pour une utilisation spécifique avec amPie, avec le pourcentage de clients pour chacune des bornes définies plus haut.
+```{r affichage_de_beignet_1}
+info_distance_pour_amPie <- jointureGeoMagasinsClients %>%
+  filter(!is.na(BORNE_DISTANCE)) %>%
+  group_by(BORNE_DISTANCE) %>%
+  summarise(value = n(), 
+            POURCENTAGE_CLIENTS = round((value/nb_total_clients$NB_TOTAL_CLIENTS*100),2)) %>% 
+  arrange(desc(POURCENTAGE_CLIENTS)) %>%
+  select(label = BORNE_DISTANCE, value)
+```
+Ce graphique affiche le pourcentage de chacune des populations selon la distance avec leur magasin.
+```{r affichage_de_beignet_2}
+amPie(data = info_distance_pour_amPie, inner_radius = 50, depth = 10, show_values = TRUE, legend = TRUE)
+```
+
+#### Format tableau avec formattable.
+
+Cette fois-ci création d'un data frame pour une utilisation spécifique avec formattable avec le pourcentage de clients pour chacune des bornes définies plus haut.
+
+```{r affichage_du_tableau_1}
+info_distance_pour_formattable <- jointureGeoMagasinsClients %>%
+  filter(!is.na(BORNE_DISTANCE)) %>%
+  group_by(BORNE_DISTANCE) %>%
+  summarise(NB_CLIENTS = n(), 
+            POURCENTAGE_CLIENTS = round((NB_CLIENTS/nb_total_clients$NB_TOTAL_CLIENTS*100),2)) %>% 
+  arrange(desc(NB_CLIENTS)) %>% 
+  select(DISTANCE = BORNE_DISTANCE, CLIENTS = NB_CLIENTS, 'POURCENTAGE DE CLIENTS' = POURCENTAGE_CLIENTS)
+```
+
+Affichage d'un tableau avec un barre permettant de mieux visualiser le pourcenatge de la population.
+
+```{r affiche_du_tableau_2}
+formattable(info_distance_pour_formattable,
+            list('POURCENTAGE DE CLIENTS' = normalize_bar("cornflowerblue", 0.14)),
+            check.rows = FALSE,
+            check.names = TRUE,
+            align=c("l","l","r")
+)
+
+```
+\
+\
+\
+\
+
+
