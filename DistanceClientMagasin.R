@@ -5,8 +5,8 @@
 # Description : Ce script renferme l'ensemble des étapes nécessaires demandées 
 #               dans la partie : 2.2	Distance CLIENT / MAGASIN.
 #
-# Objectif    : Calculer la distance qui existe entre le magasin et le client.
-# Enoncé      : Les infos disponibles pour le moment sont : 
+#    Objectif : Calculer la distance qui existe entre le magasin et le client.
+#      Enoncé : Les infos disponibles pour le moment sont : 
 #               -	la ville du magasin
 #               -	le code insee du client
 #               Il faut télécharger les données GPS des villes et code-insee pour pouvoir calculer la distance :
@@ -25,9 +25,12 @@
 #               distance : 0 à 5km, 5km à 10km, 10km à 20km, 20km à 50km, plus de 50km.
 # ---------------------------------------------------------------------------------------
 
-# Inclure le chargement du fichier paramètres qui contient :
-# - Le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+# Chargement du fichier paramètres qui permet :
+# - le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+# - le chargement des variables des fichiers.
 source("Parametres.R")
+
+# Inclure le chargement de la foncton distanceGeo(lat1, long1, lat2, long2).
 source("DistanceGeo.r")
 
 setwd(chemin_access_environnement_du_projet)
@@ -54,8 +57,7 @@ magasins <- fread(chemin_fichier_magasins, sep="|", header = TRUE, stringsAsFact
 #clients <- read.csv(chemin_fichier_clients, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
 # Chargement du fichier magasins en 2 secondes
 clients <- fread(chemin_fichier_clients, sep="|", header = TRUE, stringsAsFactors = FALSE)
-# On met tous les clients vides à "NA".
-clients[clients == ""] <- NA
+clients[clients == ""] <- NA # On met tous les clients vides à "NA".
 
 # Chargement du fichier entetes en 30 secondes.
 #entetes <- read.csv(chemin_fichier_entetes, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
@@ -79,12 +81,12 @@ clients[clients == ""] <- NA
 # Langue : Français
 # Dernière date de mise à jour : 22 avril 2016 16:47
 # Producteur : OpenDataSoft
-INSEE_CP_FULL_DATATABLE <- fread("DATA/correspondance-code-insee-code-postal.csv", sep = ";", header = TRUE, stringsAsFactors = FALSE)
+INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE, stringsAsFactors = FALSE)
 
 #------------------------------------------------------------------------------------
 # ETAPE 2a - CONSTRUCTION ET PREPARATION DE LA "TABLE_DE_TRAVAIL"
 #------------------------------------------------------------------------------------
-# Cette table est une version aménagée et simplifié de la table de correspondance de l'INSEE.
+# Cette table est une version aménagée et simplifiée de la table de correspondance de l'INSEE.
 
 # On récupère uniquement les 4 colonnes qui nous intéressent :
 # - CODEINSEE, Code Postal, Commune et geo_point_2d.
@@ -94,7 +96,7 @@ TABLE_DE_TRAVAIL <- INSEE_CP_FULL_DATATABLE[, c(1,2,3, 10)]
 # Pour pouvoir faire les jointures avec les tables magasinss et clients :
 # 2a1 - on renomme la colonne "Code INSEE" en "CODEINSEE".
 setnames(TABLE_DE_TRAVAIL, old=c("Code INSEE"), new=c("CODEINSEE"))
-# 2a2 - on renomme la colonne "Code Postal" en "VILLE".
+# 2a2 - on renomme la colonne "Code Postal" en "NUMDEPT".
 setnames(TABLE_DE_TRAVAIL, old=c("Code Postal"), new=c("NUMDEPT"))
 # 2a3 - on renomme la colonne "Commune" en "VILLE".
 setnames(TABLE_DE_TRAVAIL, old=c("Commune"), new=c("VILLE"))
@@ -139,7 +141,7 @@ setnames(clients, old=c("MAGASIN"), new=c("MAGASINS"))
 # ETAPE 3 - JOINTURE ENTRE LES TABLES "MAGASINS" et "TABLE DE TRAVAIL"
 #------------------------------------------------------------------------------------
 
-# Creation d'une table avec jointure entre la table MAGASINS et la TABLE DE TRAVAIL
+# Création d'une table avec jointure entre la table MAGASINS et la TABLE DE TRAVAIL
 jointureGeoMagasins <- magasins %>% 
   left_join(TABLE_DE_TRAVAIL, by = c("VILLE", "NUMDEPT")) %>% 
   select(MAGASINS, NUMDEPT, VILLE, LATITUDE, LONGITUDE)
@@ -165,7 +167,7 @@ jointureGeoMagasins[VILLE=="LES MILLES", LONGITUDEMAG := "5.3916980000"]
 # ETAPE 4 - JOINTURE ENTRE LES TABLES "CLIENTS" et "TABLE DE TRAVAIL"
 #------------------------------------------------------------------------------------
 
-# Creation d'une table avec jointure entre la table CLIENTS et la TABLE DE TRAVAIL
+# Création d'une table avec jointure entre la table CLIENTS et la TABLE DE TRAVAIL
 positionGeoClients <- clients %>% 
   left_join(TABLE_DE_TRAVAIL, by = c("CODEINSEE")) %>% 
   select(IDCLIENT, CODEINSEE, VILLE, MAGASINS, LATITUDE, LONGITUDE)
@@ -215,7 +217,7 @@ jointureGeoMagasinsClients[,DISTANCE_CLIENT_magasins
 #------------------------------------------------------------------------------------
 # A la place j'ai utilisé cette stratégie.
 # Cela fonctionne, mais c'est beaucoup moins élégant !
-jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins > 50), BORNE_DISTANCE:="+ de 50km"]
+jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins > 50), BORNE_DISTANCE:="plus de 50km"]
 jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins <= 50), BORNE_DISTANCE:="20 à 50km"]
 jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 20), BORNE_DISTANCE:="10 à 20km"]
 jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 10), BORNE_DISTANCE:="5 à 10km"]
@@ -223,7 +225,7 @@ jointureGeoMagasinsClients[(DISTANCE_CLIENT_magasins < 5), BORNE_DISTANCE:="0 à
 
 
 #--------------------------------------------------------------------------------------------
-# ETAPE 7 - AFFICHAGE DES RESULTAS
+# ETAPE 7 - AFFICHAGE DES RESULTATS
 #--------------------------------------------------------------------------------------------
 
 # Récupération du nombre total des clients.
@@ -236,7 +238,7 @@ nb_total_clients <- jointureGeoMagasinsClients %>%
 #--------------------------------------------------------------------------------------------
 
 # Création d'un data frame pour une utilisation spécifique avec amPie.
-# avec le pourcentage de cleints pour chacune des bornes définies plus haut.
+# avec le pourcentage de clients pour chacune des bornes définies plus haut.
 info_distance_pour_amPie <- jointureGeoMagasinsClients %>%
 # Faut-il retirer les "NA" ou les inclure dans les résultats ?
   filter(!is.na(BORNE_DISTANCE)) %>%
