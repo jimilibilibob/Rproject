@@ -4,10 +4,7 @@ author: "Thomas FONTAINE, Dan GOLDMAN, Juliette LEMAINS et Nicolas ROBIN"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
+ 
 #Set up 
 
 ## Import des libraries
@@ -16,13 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(readxl)
 library(plotly)
-library(sqldf)
+library(data.table)
 ```
 
 ## Import des bases de données
-
-Nous avons 5 bases de données structurées de la manière suivante : 
-![Caption for the picture.](structure.png)
 
 ```{r data}
 client <- fread("CLIENT.csv",sep="|")
@@ -97,15 +91,22 @@ plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type=
 
 **Instruction : Constituer une boite à moustache pour chaque année (N-2 et N-1) comparant le CA TOTAL (TTC) des clients (sommer les achats par client par années)**
 
-```{r 1.2 PLOT}
+```{r 1.2 Calcul de l agregat}
 entetes <- data.table(entetes)
 client_CA <- entetes[,list(TOTALCA = sum(TIC_TOTALTTC)),by=list(IDCLIENT,year(TIC_DATE))]
+```
+
+Au vu des premiers résultats lors de l'affichage des boites à moustache, nous devons supprimer les valeurs abérrantes, aussi appelés "outliers". Pour cela nous supprimons les clients qui ont un TOTALCA supérieur au dernier centile et inférieur au premier centile :
+
+```{r 1.2 Remove outliers and plot}
+client_CA_not_OUT <- subset(client_CA,(TOTALCA>quantile(client_CA$TOTALCA,c(0.01)))&
+                            (TOTALCA<quantile(client_CA$TOTALCA,c(0.99))))
 
 plot_ly(type="box") %>%
-  add_boxplot(y=~client_CA[client_CA$year==2016,]$TOTALCA,
+  add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==2016]$TOTALCA,
               boxpoints=FALSE,name="2016") %>%
-  add_boxplot(y=~client_CA[client_CA$year==2017,]$TOTALCA,
+  add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==2017]$TOTALCA,
               boxpoints=FALSE,name="2017") %>%
-  layout(title="Boite à moustache du CA TOTAL des clients par année",
+  layout(title="Boite à moustache du CA TOTAL des clients par année d'achat",
          yaxis=list(title="CA Total des clients"))
 ```
