@@ -12,7 +12,7 @@ library(formattable)
 chemin_access_environnement_du_projet <- "/Users/nrobin/Documents/GitHub/Rproject/"
 
 # Déclaration du chemin du dossier dans lequel se trouve les fichiers de données.
-chemin_dossier_données <- "DATA/"
+chemin_dossier_données <- paste0(chemin_access_environnement_du_projet, "DATA/")
 
 # La liste des fichiers de données nécessaires au projet.
 nom_fichier_articles <- "REF_ARTICLE.CSV"
