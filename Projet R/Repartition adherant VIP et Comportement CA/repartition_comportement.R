@@ -52,10 +52,14 @@ plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type=
 entetes <- data.table(entetes)
 client_CA <- entetes[,list(TOTALCA = sum(TIC_TOTALTTC)),by=list(IDCLIENT,year(TIC_DATE))]
 
+#REMOVE OUTLIERS
+client_CA_not_OUT <- subset(client_CA,(TOTALCA>quantile(client_CA$TOTALCA,c(0.01)))&
+                            (TOTALCA<quantile(client_CA$TOTALCA,c(0.99))))
+
 plot_ly(type="box") %>%
-  add_boxplot(y=~client_CA[client_CA$year==2016,]$TOTALCA,
+  add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==2016]$TOTALCA,
               boxpoints=FALSE,name="2016") %>%
-  add_boxplot(y=~client_CA[client_CA$year==2017,]$TOTALCA,
+  add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==2017]$TOTALCA,
               boxpoints=FALSE,name="2017") %>%
-  layout(title="Boite à moustache du CA TOTAL des clients par année",
+  layout(title="Boite à moustache du CA TOTAL des clients par année d'achat",
          yaxis=list(title="CA Total des clients"))
