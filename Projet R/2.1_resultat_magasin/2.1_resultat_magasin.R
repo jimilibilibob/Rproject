@@ -73,22 +73,21 @@ total <- data.frame("Total",
                     total_indice
                     )
 
-colnames(resultat) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices évolutions")
+colnames(resultat) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices ?volutions")
 
-names(total) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices évolutions")
+names(total) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices ?volutions")
 
 resultat <- rbind(resultat,total)
 
-color_text_formatter <- formattable::formatter("span", 
-                            style = x ~ style(color = ifelse(x > 0, "green", 
+color_text_formatter <- formatter("span", 
+                            style = x ~ formattable::style(color = ifelse(x > 0, "green", 
                                                              ifelse(x < 0, "red", "black"))))
-color_text_formatter(c(-1, 0, 1))
 
 improvement_formatter <- formattable::formatter("span", 
-                                   style = x ~ style(font.weight = "bold", 
+                                   style = x ~ formattable::style(font.weight = "bold", 
                                                      color = ifelse(x > 0, "green", ifelse(x < 0, "red", "black"))), 
                                    x ~ icontext(ifelse(x > 0, "arrow-up", ifelse(x < 0, "arrow-down", "arrow-right")), text = list(NULL))
 )
 
-formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = formattable::color_bar("lightblue"), "Indices évolutions" = improvement_formatter))
+formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = color_bar("lightblue"), "Indices ?volutions" = improvement_formatter))
 
