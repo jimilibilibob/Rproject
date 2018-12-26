@@ -1,0 +1,166 @@
+---
+title: "Etude par univers"
+author: "Thomas FONTAINE, Dan GOLDMAN, Juliette LEMAINS et Nicolas ROBIN"
+date: "14/12/2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 3.1 Evolution du CA par univers de produit et par année d'achat
+3.1 Evolution du CA par univers de produit et par année d'achat
+Objectif: réaliser un histogramme presentant le CA par univers produit et par année d'achat
+
+#library
+```{r library}
+library(dplyr)
+library(data.table)
+library(readxl)
+library(assertthat)
+library(xlsx)
+library(stringr)
+library(rAmCharts)
+library(formattable)
+library(RSQLite)
+library(proto)
+library(gsubfn)
+library(sqldf)
+library(ggplot2)
+```
+
+
+#ETAPE DE PROGRAMMATION 
+
+# Iimport des données
+Etape 1 : Import des des données
+- la table article
+- la table ligne ticket
+- la table entete ticket
+```{r 1- import des données}
+
+#import de la table article source
+articles_in <- read.csv2("C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/REF_ARTICLE.csv", header = T, na.strings = "",
+                      stringsAsFactors = FALSE, sep = "|", dec =",")
+
+#import de la table ligne ticket
+lignes_in <- read.csv2("C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/LIGNES_TICKET.csv", header = T, na.strings = "",
+                    stringsAsFactors = FALSE, sep = "|", dec =",")
+
+#import de la table entete ticket
+entete_in <- read.csv2("C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/ENTETES_TICKET.csv", header = T, na.strings = "",
+                    stringsAsFactors = FALSE, sep = "|", dec =",")
+```
+
+#modification sur de la table article
+Etape 2 : Retravailler la table article.
+Copie de la table article en renommant le champ de l'identifiant article.
+Ajout d'un identifiant article dans la table article (cet identifiant apparait dans la table ligne ticket, il faut donc l'ajouter dans la table article pour pouvoir le comptabiliser).
+```{r 2- transco table article}
+#copie de la table article et renommer l'id code article
+article<-rename(articles_in, IDARTICLE = ï..CODEARTICLE)
+
+# ajout de l ID article 395460 dans la table article
+newarticle <- data.frame(IDARTICLE='395460',CODEUNIVERS='unknown',CODEFAMILLE='unknown', CODESOUSFAMILLE='unknown')
+article<- rbind(article,newarticle)
+
+```
+
+#jointure interne entre la table ligne ticket et la table article
+#exclusion de tous les articles qui n'ont jamais ete acheté
+Etape 3 : Création d'une nouvelle table appelée ligne_aticle
+jointure interne entre la table ligne ticket et la table article. 
+Tous les articles n'ayant eu aucun achat seront exclus de la table
+```{r jointure ligne ticket et article}
+ligne_article<-merge(lignes_in,article, by="IDARTICLE", all=FALSE)
+```
+
+
+#agregation de la table ligne article pour faire un regroupement par code univers et ID ticket
+Etape 4 : Agrégation du champs TOTAL (somme) de la table ligne par identifiant entete ticket et code univers
+```{r agregation ligne article par univers}
+#agregation de la table ligne article pour faire un regroupement par code univers et ID ticket
+setDT(ligne_article)
+ligne_univers<-ligne_article[, .(TOTAL=sum(TOTAL))
+                        ,by=.(IDTICKET,CODEUNIVERS)]
+```
+
+#jointure interne entre la table entete ticket et la table ligne univers
+Etape 5 : creation d'une nouvelle table appelée entete_ligne_univers
+jointure interne entre la table entete ticket et la table agrégée ligne univers
+```{r jointure entete et ligne univers}
+#jointure interne entre la table entete ticket et la table ligne univers
+entete_ligne_univers<-merge(entete_in,ligne_univers, by="IDTICKET", all=FALSE)
+```
+
+#Modification de la table entete_ligne_univers
+Etape 6 : transformation du type pour le champs TIC_DATE pour recuperer l'année d'achat
+```{r transco date achat de la table entete_ligne_univers}
+setDT(entete_ligne_univers)
+#Modification du type pour le champs TIC_DATE en format date
+entete_ligne_univers[,TIC_DATE:= as.Date(entete_ligne_univers$TIC_DATE)]
+#recuperer l'année d'achat à partir du champs TIC_DATE transformé en format date
+entete_ligne_univers[,TIC_YEAR:= year(entete_ligne_univers$TIC_DATE)]
+```
+
+#Agrégation de la table entete_ligne_univers par code univers et par année d'achat
+Etape 7 : création d'une nouvelle table appelée ca_univers
+Agregation du champs TOTAL (somme) de la table entete_ligne_ticket par code univers et année d'achat
+Renommer le champs TIC_YEAR en ANNEE
+```{r agregation CA par code univers et annee}
+#table agrégé des CA par univers produit et par année
+ca_univers<-entete_ligne_univers[, .(TOTAL=sum(TOTAL)),
+                                    by=.(CODEUNIVERS, TIC_YEAR)]
+#renommer le champ tic_year en année
+ca_univers<-rename(ca_univers, ANNEE = TIC_YEAR)
+```
+
+#Histogramme de l'evolution CA par univers et année
+Etape 8 : Representation graphique de l'évolution du CA par code univers et année
+```{r graphe histogramme CA}
+evolution_ca<-ggplot(ca_univers,aes(x=CODEUNIVERS,y=TOTAL,fill=factor(ANNEE)))+
+  geom_bar(stat="identity",position="dodge")+
+  scale_fill_discrete(name="ANNEE")+
+  xlab("UNIVERS")+ylab("TOTAL CA")
+```
+
+## 3.2 Top marge par univers
+3.2 Top par univers
+Objectif: Afficher le top 5 des familles les plus rentable par univers (en fonction de la marge)
+
+#ETAPE DE PROGRAMMATION 
+Etape 1 : création d'une nouvelle table agrégée appelé marge_family_univers
+Agrégation de la marge (somme) par code famille et code univers
+```{r agregation marge par code famille et code univers}
+#agregation de la marge par code univers et code famille
+marge_family_univers<-ligne_article[, .(MARGE=sum(MARGESORTIE)), by=.(CODEUNIVERS, CODEFAMILLE)]
+```
+
+Etape 2 : trier la table marge_family_univers
+```{r trie code univers par marge}
+#trie de la table par marge
+marge_family_univers<-marge_family_univers[order(CODEUNIVERS,MARGE, decreasing = TRUE),]
+```
+
+Etape 3 : Positionner un rang en fonction de la marge, regroupé par code famille et code univers
+```{r rank code famille et code univers}
+#créé un rank de la marge par code univers
+marge_family_univers <- within(marge_family_univers, rank <- ave(MARGE, CODEUNIVERS,
+                                                FUN=function(x)rev(order(x))))
+```
+
+Etape 4 : Filtrer pour recuperer uniquement les 5 meilleurs marge par code famille et code univers
+```{r filtre top 5}
+#afficher le resultat du rank par code univers et code famille
+marge_family_univers_top5<-subset(marge_family_univers, rank<=5)
+```
+
+Etape 5 : afficher le resultat en graphe
+```{r}
+marge_family_univers_top5
+```
+
