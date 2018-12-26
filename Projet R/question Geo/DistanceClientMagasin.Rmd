@@ -57,7 +57,7 @@ source("/Users/nrobin/Documents/GitHub/Rproject/Parametres.R")
 Cette fonction utilise la [FORMULE DE HAVERSINE](https://fr.wikipedia.org/wiki/Formule_de_haversine) en l'état.
 
 ```{r}
-source("DistanceGeo.r")
+source("/Users/nrobin/Documents/GitHub/Rproject/Projet R/question Geo/DistanceGeo.r")
 ```
 
 ### 3. Lecture et chargements des fichiers nécessaires
@@ -66,9 +66,8 @@ source("DistanceGeo.r")
 magasins <- fread(chemin_fichier_magasins, sep="|", header = TRUE, stringsAsFactors = FALSE)
 
 clients <- fread(chemin_fichier_clients, sep="|", header = TRUE, stringsAsFactors = FALSE)
-clients[clients == ""] <- NA # On met tous les clients vides à "NA".
+clients[clients == ""] <- NA
 
-# Lecture du fichier public open data de l'INSEE.
 INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE, stringsAsFactors = FALSE)
 ```
 
@@ -93,7 +92,7 @@ setnames(TABLE_DE_TRAVAIL, old=c("Commune"), new=c("VILLE"))
 * on élimine la colonne "geo_point_2d" devenue inutile.\
 ```{r}
 TABLE_DE_TRAVAIL[, c("LATITUDE", "LONGITUDE") := tstrsplit(geo_point_2d, ", ", fixed=TRUE)]
-TABLE_DE_TRAVAIL[,geo_point_2d:=NULL] # on élimine la colonne "geo_point_2d" devenue inutile.
+TABLE_DE_TRAVAIL[,geo_point_2d:=NULL]
 ```
 * On tronque le numéro de code postal pour obtenir le numéro de département qui nous permmettra plus tard de discriminer plusieurs communes françaises avec le même nom.
 ```{r}
@@ -236,7 +235,7 @@ info_distance_pour_amPie <- jointureGeoMagasinsClients %>%
 ```
 Ce graphique affiche le pourcentage de chacune des populations selon la distance avec leur magasin.
 ```{r affichage_de_beignet_2}
-amPie(data = info_distance_pour_amPie, inner_radius = 50, depth = 10, show_values = TRUE, legend = TRUE)
+amPie(data = info_distance_pour_amPie, inner_radius = 50, show_values = TRUE, legend = TRUE)
 ```
 
 #### Format tableau avec formattable.

@@ -31,7 +31,7 @@
 source("Parametres.R")
 
 # Inclure le chargement de la foncton distanceGeo(lat1, long1, lat2, long2).
-source("DistanceGeo.r")
+source("Projet R/question Geo/DistanceGeo.r")
 
 setwd(chemin_access_environnement_du_projet)
 

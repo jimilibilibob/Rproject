@@ -4,9 +4,7 @@ nombre_client_magasin <- clients %>% group_by(MAGASIN) %>%   summarise(nombreCli
 
 resultat <- merge(x=magasins, y=nombre_client_magasin, by.x="CODESOCIETE", by.y="MAGASIN")
 
-
-
-activite_magasin <- entetes_tickets %>% group_by(MAG_CODE,IDCLIENT,year = format(as.Date(entetes_tickets$TIC_DATE),'%Y'))  
+activite_magasin <- entetes %>% group_by(MAG_CODE,IDCLIENT,year = format(as.Date(entetes$TIC_DATE),'%Y'))  
 
 activite_magasin_n2 <- subset(activite_magasin, activite_magasin$year == '2016') %>% group_by(MAG_CODE) %>% summarise(clientActifN2 = n())
 
@@ -19,7 +17,7 @@ resultat <- merge(x=resultat, y=activite_magasin_n1, by.x="CODESOCIETE", by.y="M
 resultat$evolutionClientActif <- round(resultat$clientActifN2/resultat$clientActifN1 * 100 -100,2)
 
 
-TOTALTCC_magasin <- entetes_tickets %>% group_by(MAG_CODE,year = format(as.Date(entetes_tickets$TIC_DATE),'%Y'))  %>%   summarise(TOTAL_TTC = sum(TIC_TOTALTTC))
+TOTALTCC_magasin <- entetes %>% group_by(MAG_CODE,year = format(as.Date(entetes$TIC_DATE),'%Y'))  %>%   summarise(TOTAL_TTC = sum(TIC_TOTALTTC))
 
 TOTALTTC_magasin_n2 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == '2016') %>% summarise(TOTAL_TTCN1 = TOTAL_TTC )
 
@@ -81,16 +79,16 @@ names(total) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adhere
 
 resultat <- rbind(resultat,total)
 
-color_text_formatter <- formatter("span", 
+color_text_formatter <- formattable::formatter("span", 
                             style = x ~ style(color = ifelse(x > 0, "green", 
                                                              ifelse(x < 0, "red", "black"))))
 color_text_formatter(c(-1, 0, 1))
 
-improvement_formatter <- formatter("span", 
+improvement_formatter <- formattable::formatter("span", 
                                    style = x ~ style(font.weight = "bold", 
                                                      color = ifelse(x > 0, "green", ifelse(x < 0, "red", "black"))), 
                                    x ~ icontext(ifelse(x > 0, "arrow-up", ifelse(x < 0, "arrow-down", "arrow-right")), text = list(NULL))
 )
 
-formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = color_bar("lightblue"), "Indices évolutions" = improvement_formatter))
+formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = formattable::color_bar("lightblue"), "Indices évolutions" = improvement_formatter))
 
