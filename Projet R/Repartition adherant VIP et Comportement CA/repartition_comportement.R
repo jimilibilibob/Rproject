@@ -5,6 +5,32 @@ library(readxl)
 library(plotly)
 library(data.table)
 
+
+
+question_repartition <- function(ANNEE,C){
+  VIP <- C[C$VIP==1,]
+  NEW_N2 <-C[(C$VIP!=1)&(format(C$DATEDEBUTADHESION,"%Y")==(ANNEE-2)),]
+  NEW_N1 <-C[(C$VIP!=1)&(format(C$DATEDEBUTADHESION,"%Y")==(ANNEE-1)),]
+
+  #ADHERANT : client toujours en cours d'adhesion (date de fin d'adhesion > 2018/01/01)
+  ADHERANT <-C[(client$VIP!=1)&format(C$DATEDEBUTADHESION,"%Y")<(ANNEE-2)&
+                       (format(C$DATEFINADHESION,"%Y-%m-%d"))>as.Date("2018-01-01"),]
+  
+  #CHURNER : client ayant churner (date de fin d'adhesion < 2018/01/01)
+  CHURNER <-client[((format(C$DATEFINADHESION,"%Y-%m-%d"))<as.Date("2018-01-01"))&
+                      (C$VIP!=1)&format(C$DATEDEBUTADHESION,"%Y")<(ANNEE-2),]
+  
+  slices <- c(nrow(VIP),nrow(NEW_N2),nrow(NEW_N1),nrow(ADHERANT),nrow(CHURNER))
+  levels <- c("# VIP","# adherant au cours de N-2","# adherant au cours de N-1",
+               "# Toujours adherant","Churner")
+  plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type="pie")%>%
+     layout(title = "Repartition Adherant/VIP",legend = list(x = -1, y = 0.9))
+}
+
+ANNEE<-2018
+
+toto <- question_repartition(ANNEE,client)
+
 #Import sample tables
 
 client <- fread("CLIENT.csv",sep="|")
