@@ -33,56 +33,6 @@ source("Parametres.R")
 # Inclure le chargement de la foncton distanceGeo(lat1, long1, lat2, long2).
 source("Projet R/question Geo/DistanceGeo.r")
 
-setwd(chemin_access_environnement_du_projet)
-
-#------------------------------------------------------------------------------------
-# ETAPE 1 - LECTURE DES FICHIERS
-#------------------------------------------------------------------------------------
-
-# Chargement du fichier des articles en 2 secondes
-#articles <- read.csv(chemin_fichier_articles, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
-# Chargement du fichier des articles en 1 secondes
-#articles <- fread(chemin_fichier_articles, sep="|", header = TRUE, stringsAsFactors = FALSE)
-
-# Cette ligne de code retire la ligne COUPON.
-# Faut-il la retirer ou pas ? N'aura-t-on pas besoin de cette information plus tard ?
-#articles <- articles[-c(1),]
-
-# Chargement du fichier magasins en moins d'une seconde
-#magasins <- read.csv(chemin_fichier_magasins, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
-# Chargement du fichier magasins en moins d'une seconde
-magasins <- fread(chemin_fichier_magasins, sep="|", header = TRUE, stringsAsFactors = FALSE)
-
-# Chargement du fichier clients en 6 secondes
-#clients <- read.csv(chemin_fichier_clients, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
-# Chargement du fichier magasins en 2 secondes
-clients <- fread(chemin_fichier_clients, sep="|", header = TRUE, stringsAsFactors = FALSE)
-clients[clients == ""] <- NA # On met tous les clients vides à "NA".
-
-# Chargement du fichier entetes en 30 secondes.
-#entetes <- read.csv(chemin_fichier_entetes, sep="|", header=TRUE, skipNul = T, stringsAsFactors = FALSE)
-# Chargement du fichier entetes en 12 secondes.
-#entetes <- fread(chemin_fichier_entetes, sep="|", header = TRUE, stringsAsFactors = FALSE)
-# Suppression de la colonne entete_num. 
-#[entete_num!=0]
-
-# Chargement du fichier magasins en 120 secondes
-#lignes <- read.csv(chemin_fichier_lignes, sep="|", header=TRUE, skipNul = T)
-# Chargement du fichier magasins en 30 secondes
-#lignes <- fread(chemin_fichier_lignes, sep="|", header = TRUE, stringsAsFactors = FALSE)
-
-#------------------------------------------------------------------------------------
-# LECTURE DU FICHIER PUBLIC OPEN DATA DE L'INSEE.
-#------------------------------------------------------------------------------------
-
-# Il s'agit d'un fichier de correspondance entre le code-insee, le code-postal, la longitude et la latitude.
-# Thèmes : Administration, Gouvernement, Finances publiques, Citoyenneté
-# Licence : Licence Ouverte (Etalab)
-# Langue : Français
-# Dernière date de mise à jour : 22 avril 2016 16:47
-# Producteur : OpenDataSoft
-INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE, stringsAsFactors = FALSE)
-
 #------------------------------------------------------------------------------------
 # ETAPE 2a - CONSTRUCTION ET PREPARATION DE LA "TABLE_DE_TRAVAIL"
 #------------------------------------------------------------------------------------
@@ -90,8 +40,8 @@ INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE,
 
 # On récupère uniquement les 4 colonnes qui nous intéressent :
 # - CODEINSEE, Code Postal, Commune et geo_point_2d.
-# TABLE_DE_TRAVAIL <- INSEE_CP_FULL_DATATABLE[, list('Code INSEE', 'Code Postal', Commune, geo_point_2d)]
-TABLE_DE_TRAVAIL <- INSEE_CP_FULL_DATATABLE[, c(1,2,3, 10)]
+# TABLE_DE_TRAVAIL <- insee[, list('Code INSEE', 'Code Postal', Commune, geo_point_2d)]
+TABLE_DE_TRAVAIL <- insee[, c(1,2,3, 10)]
 
 # Pour pouvoir faire les jointures avec les tables magasinss et clients :
 # 2a1 - on renomme la colonne "Code INSEE" en "CODEINSEE".
@@ -158,8 +108,8 @@ setnames(jointureGeoMagasins, old=c("LATITUDE"), new=c("LATITUDEMAG"))
 setnames(jointureGeoMagasins, old=c("LONGITUDE"), new=c("LONGITUDEMAG"))
 
 # La ville "LES MILLES" dans La table MAGASINS n'est pas répertoriée dans le
-# Tableau INSEE. Je me suis permis de rajouter l'information personnellement,
-# dans le sens où c'était la seule ville qui n'était pas répertoriée.
+# Tableau INSEE. Nous avons rajouté l'information "manuellement", 
+# puisque c'était la seule ville qui n'était pas répertoriée.
 jointureGeoMagasins[VILLE=="LES MILLES", LATITUDEMAG := "43.5042670000"]
 jointureGeoMagasins[VILLE=="LES MILLES", LONGITUDEMAG := "5.3916980000"]
 

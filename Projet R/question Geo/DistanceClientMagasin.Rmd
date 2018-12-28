@@ -60,24 +60,13 @@ Cette fonction utilise la [FORMULE DE HAVERSINE](https://fr.wikipedia.org/wiki/F
 source("/Users/nrobin/Documents/GitHub/Rproject/Projet R/question Geo/DistanceGeo.r")
 ```
 
-### 3. Lecture et chargements des fichiers nécessaires
-
-```{r lecture_des_fichiers}
-magasins <- fread(chemin_fichier_magasins, sep="|", header = TRUE, stringsAsFactors = FALSE)
-
-clients <- fread(chemin_fichier_clients, sep="|", header = TRUE, stringsAsFactors = FALSE)
-clients[clients == ""] <- NA
-
-INSEE_CP_FULL_DATATABLE <- fread(chemin_fichier_INSEE, sep = ";", header = TRUE, stringsAsFactors = FALSE)
-```
-
-### 4. Construction et préparation de la "TABLE_DE_TRAVAIL"
+### 3. Construction et préparation de la "TABLE_DE_TRAVAIL"
 
 Cette table est une **version aménagée et simplifiée de la table de correspondance de l'INSEE**.\
 On récupère uniquement les 4 colonnes qui nous intéressent : CODEINSEE, Code Postal, Commune et geo_point_2d.
 
 ```{r construction_preparation_de_la_table_de_travail}
-TABLE_DE_TRAVAIL <- INSEE_CP_FULL_DATATABLE[, c(1,2,3, 10)]
+TABLE_DE_TRAVAIL <- insee[, c(1,2,3, 10)]
 ```
 Pour pouvoir faire les jointures avec les tables magasinss et clients :\
 * On renomme la colonne "Code INSEE" en "CODEINSEE".\
@@ -100,7 +89,7 @@ TABLE_DE_TRAVAIL[,NUMDEPT:=str_trunc(NUMDEPT, 2, "right", "")]
 TABLE_DE_TRAVAIL[,NUMDEPT :=as.integer(NUMDEPT)] 
 ```
 
-### 5. Phase de traitement des données et rétablissement de la cohérence
+### 4. Phase de traitement des données et rétablissement de la cohérence
 
 Cette phase permet de rétablir la cohérence entre les tables TABLE_DE_TRAVAIL, magasins et clients.
 
@@ -124,7 +113,7 @@ setnames(magasins, old=c("LIBELLEDEPARTEMENT"), new=c("NUMDEPT"))
 setnames(clients, old=c("MAGASIN"), new=c("MAGASINS"))
 ```
 
-### 6. Jointure entre les tables "MAGASINS" et "TABLE DE TRAVAIL"
+### 5. Jointure entre les tables "MAGASINS" et "TABLE DE TRAVAIL"
 
 Création d'une table avec jointure entre la table MAGASINS et la TABLE DE TRAVAIL
 
@@ -134,7 +123,7 @@ jointureGeoMagasins <- magasins %>%
   select(MAGASINS, NUMDEPT, VILLE, LATITUDE, LONGITUDE)
 ```
 
-### 7. Mise en forme de la table "jointureGeoMagasins"
+### 6. Mise en forme de la table "jointureGeoMagasins"
 
 Transformation de la table en DATA TABLE
 ```{r}
@@ -145,13 +134,13 @@ Renommage des colonnes
 setnames(jointureGeoMagasins, old=c("LATITUDE"), new=c("LATITUDEMAG"))
 setnames(jointureGeoMagasins, old=c("LONGITUDE"), new=c("LONGITUDEMAG"))
 ```
-La ville "LES MILLES" dans La table MAGASINS n'est pas répertoriée dans le tableau INSEE. Je me suis permis de rajouter l'information personnellement, dans le sens où c'était la seule ville qui n'était pas répertoriée.
+La ville "LES MILLES" dans La table MAGASINS n'est pas répertoriée dans le tableau INSEE. Nous avons rajouté l'information "manuellement", puisque c'était la seule ville qui n'était pas répertoriée.
 ```{r}
 jointureGeoMagasins[VILLE=="LES MILLES", LATITUDEMAG := "43.5042670000"]
 jointureGeoMagasins[VILLE=="LES MILLES", LONGITUDEMAG := "5.3916980000"]
 ```
 
-### 8. Jointure entre les tables "CLIENTS" et "TABLE DE TRAVAIL"
+### 7. Jointure entre les tables "CLIENTS" et "TABLE DE TRAVAIL"
 
 Création d'une table avec jointure entre la table CLIENTS et la TABLE DE TRAVAIL
 ```{r}
@@ -169,7 +158,7 @@ setnames(positionGeoClients, old=c("LATITUDE"), new=c("LATITUDECLIENT"))
 setnames(positionGeoClients, old=c("LONGITUDE"), new=c("LONGITUDECLIENT"))
 ```
 
-### 9. Jointure entre les tables "jointureGeoMagasins" et "jointureGeoClients"
+### 8. Jointure entre les tables "jointureGeoMagasins" et "jointureGeoClients"
 
 Création d'une table avec jointure entre la table jointureGeoMagasins" et la "jointureGeoClients". Cette table enfin finalisée va permettre de calculer la distance client <-> magasin pour chacun des clients de la table clients.
 ```{r}
@@ -189,7 +178,7 @@ jointureGeoMagasinsClients[,LATITUDEMAG :=as.double(LATITUDEMAG)]
 jointureGeoMagasinsClients[,LONGITUDEMAG :=as.double(LONGITUDEMAG)] 
 ```
 
-### 10. Affectation de la distance avec la fonction distanceGeo(lat1, long1, lat2, long2)
+### 9. Affectation de la distance avec la fonction distanceGeo(lat1, long1, lat2, long2)
 ```{r}
 jointureGeoMagasinsClients[,DISTANCE_CLIENT_magasins
                            :=distanceGeo(LATITUDECLIENT, LONGITUDECLIENT, LATITUDEMAG, LONGITUDEMAG)]
@@ -217,7 +206,7 @@ nb_total_clients <- jointureGeoMagasinsClients %>%
 ```
 
 
-### 11. Affichage des résultats
+### 10. Affichage des résultats
 \
 \
 
