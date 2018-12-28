@@ -30,7 +30,7 @@ utilise_des_extraits_de_fichier <- FALSE
 # Chemins de dossier des fichiers de donnée respectifs dans le cas où on n'utilise pas la boite de dialogue.
 chemin_dossier_donnees_Thomas <- "..."
 chemin_dossier_donnees_Dan <- "..."
-chemin_dossier_donnees_Juliette <- "..."
+chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
 
 # Fonction "dossierFichiersDonnees".
