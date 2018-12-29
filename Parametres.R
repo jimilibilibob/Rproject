@@ -91,6 +91,9 @@ if (utilise_des_extraits_de_fichier == TRUE) {
 # ------------------------------------------------------------------------------------
 chargementTableArticles <- function() {
   
+  # information pour la console
+  cat("Chargement de la table Articles...","\n")
+  
   tableArticles <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
@@ -115,7 +118,10 @@ chargementTableArticles <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableMagasins <- function() {
   
-  tableMagasins <- NULL
+  # information pour la console
+  cat("Chargement de la table Magasins...","\n")
+
+    tableMagasins <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
@@ -136,7 +142,10 @@ chargementTableMagasins <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableClients <- function() {
   
-  tableClients <- NULL
+  # information pour la console
+  cat("Chargement de la table Clients","\n")
+
+    tableClients <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
@@ -158,7 +167,10 @@ chargementTableClients <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableEntetes <- function() {
   
-  tableEntetes <- NULL
+  # information pour la console
+  cat("Chargement de la table Entetes","\n")
+
+    tableEntetes <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
@@ -179,7 +191,10 @@ chargementTableEntetes <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableLignes <- function() {
   
-  tableLignes <- NULL
+  # information pour la console
+  cat("Chargement de la table Lignes...","\n")
+
+    tableLignes <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
@@ -200,7 +215,10 @@ chargementTableLignes <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableInsee <- function() {
   
-  tableInsee <- NULL
+  # information pour la console
+  cat("Chargement de la table Insee...","\n")
+
+    tableInsee <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
@@ -215,7 +233,7 @@ chargementTableInsee <- function() {
   returnValue(tableInsee)
 }
 
-# Chargement des 5 tables à utiliser en entrée plus la table Insee.
+# Chargement des 5 tables à utiliser en entrée, plus la table Insee.
 # Les données peuvent maintenant être traitées pour chacun dees exercices du projet.
 articles <- chargementTableArticles()
 magasins <- chargementTableMagasins()
