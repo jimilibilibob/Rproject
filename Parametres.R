@@ -18,7 +18,8 @@ require(ggplot2)
 require(plotly)
 require(rAmCharts)
 require(stringr)
-require(tcltk)
+#require(tcltk)
+require(svDialogs)
 
 
 # La variable booléene "utilise_des_extraits_de_fichier" permet de sélectionner des extraits de fichiers
@@ -28,44 +29,46 @@ require(tcltk)
 utilise_des_extraits_de_fichier <- FALSE
 
 # Chemins de dossier des fichiers de donnée respectifs dans le cas où on n'utilise pas la boite de dialogue.
-<<<<<<< HEAD
-chemin_dossier_donnees_Thomas <- "..."
-chemin_dossier_donnees_Dan <- "/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/"
-=======
 chemin_dossier_donnees_Thomas <- "C:/Users/timti/Documents/R/Rproject/DATA/"
 chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/"
->>>>>>> 56787d1e6a7052d7146c877a94c44dd582ae42b4
 chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
 
 # Fonction "dossierFichiersDonnees".
 # Cette fonction renvoie le chemin du dossier où se trouve les fichiers de données d'entrée.
 # Si aucun dossier n'est sélectionné, la fonction retourne "NA".
-cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut) {
+cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "") {
+  
+  valeur_a_retourner <- ""
   
   # Declaration du chemin du dossier dans lequel se trouve les fichiers de donnees.
-  chemin <- tk_choose.dir(getwd(), "Sélectionner le dossier où se trouvent les fichiers d'entrée :")
+  #chemin <- dlg_dir(default = getwd(), "Sélectionner le dossier où se trouvent les fichiers d'entrée", gui = .GUI)
+  chemin <- dlg_dir(default = getwd(), title = "Sélectionner le dossier où se trouvent les fichiers d'entrée")$res
   
-  if (is.na(chemin)) {
+  if (identical(chemin, character(0))) {
     
-    chemin <- chemin_dossier_donnees_par_defaut
+    valeur_a_retourner <- chemin_dossier_donnees_par_defaut
     
   }else{
     # Ajout d'un "/" pour le dossier sélectionné par l'utilisateur.
-    chemin <- paste0(chemin, "/")
+    valeur_a_retourner <- paste0(chemin, "/")
   }
   
   # Si la valeur de "chemin_dossier_donnees" n'a pas été renseignée, on affiche un message d'erreur.
-  if (is.na(chemin)) {
-    tk_messageBox("ok", "Le dossier contenant les fichiers d'entrée n'a pas été sélectionné", caption = "Erreur", default = "")
+  if (valeur_a_retourner == "") {
+    dlg_message("Le dossier contenant les fichiers d'entrée n'a pas été sélectionné. Les tables ne peuvent pas être chargées.", "ok", gui = .GUI)
+    valeur_a_retourner = NA
   }
   
-  return(chemin)
+  return(valeur_a_retourner)
 }
+
+
 
 # Affectation de la variable globale "chemin_dossier_donnees".
 # Cette valeur indique le chemin du dossier dans lequel se trouvent tous les fichiers de donnée.
-chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Thomas)
+#chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Nicolas)
+chemin_dossier_donnees <- cheminDossierFichiersDonnees()
 
 # La liste des fichiers de donnees necessaires au projet.
 nom_fichier_INSEE <- "correspondance-code-insee-code-postal.csv"
@@ -96,13 +99,13 @@ if (utilise_des_extraits_de_fichier == TRUE) {
 # ------------------------------------------------------------------------------------
 chargementTableArticles <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Articles...","\n")
-  
   tableArticles <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
     
+    # information pour la console
+    cat("Chargement de la table Articles...","\n")
+
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_articles)
 
@@ -123,12 +126,12 @@ chargementTableArticles <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableMagasins <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Magasins...","\n")
-
-    tableMagasins <- NULL
+  tableMagasins <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
+    
+    # information pour la console
+    cat("Chargement de la table Magasins...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_magasins)
@@ -147,12 +150,12 @@ chargementTableMagasins <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableClients <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Clients","\n")
-
-    tableClients <- NULL
+  tableClients <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
+    
+    # information pour la console
+    cat("Chargement de la table Clients","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_clients)
@@ -172,12 +175,12 @@ chargementTableClients <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableEntetes <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Entetes","\n")
-
-    tableEntetes <- NULL
+  tableEntetes <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
+  
+    # information pour la console
+    cat("Chargement de la table Entetes","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_entetes)
@@ -196,12 +199,12 @@ chargementTableEntetes <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableLignes <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Lignes...","\n")
-
-    tableLignes <- NULL
+  tableLignes <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
+    
+    # information pour la console
+    cat("Chargement de la table Lignes...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_lignes)
@@ -220,12 +223,12 @@ chargementTableLignes <- function() {
 # ------------------------------------------------------------------------------------
 chargementTableInsee <- function() {
   
-  # information pour la console
-  cat("Chargement de la table Insee...","\n")
-
-    tableInsee <- NULL
+  tableInsee <- NULL
   
   if (!is.na(chemin_dossier_donnees)) {
+    
+    # information pour la console
+    cat("Chargement de la table Insee...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_INSEE)
