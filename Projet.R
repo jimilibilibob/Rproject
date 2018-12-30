@@ -546,9 +546,106 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
 
 #Autres fonctions des autres exos
 
+# ---------------------------------------------------------------------------------------
+#    Fonction : etude_par_univers_3.1()
+# Développeur : Dan Goldman.
+#        Date : 30 décembre 2018.
+#  Paramètres : 
+# Description : Cette fonction réalise histogramme du CA par code univers et année
+#               
+# ---------------------------------------------------------------------------------------
+
+etude_par_univers_3.1<- function(table_article,table_ligne_ticket, table_entete_ticket){
+  #renommer l'id code article correctement
+  article<-rename(table_article, IDARTICLE = ï..CODEARTICLE)
+  setDT(article)
+  
+  #Il y a un article acheté dans la table ligne ticket qui n'existe pas dans la table article
+  # ajout de l ID article 395460 dans la table article
+  newarticle <- data.frame(IDARTICLE='395460',CODEUNIVERS='unknown',CODEFAMILLE='unknown', CODESOUSFAMILLE='unknown')
+  article<- rbind(article,newarticle)
+  setDT(article)
+  
+  #jointure interne entre la table ligne ticket et la table article
+  #exclusion de tous les articles qui n'ont jamais ete acheté
+  ligne_article<-merge(table_ligne_ticket,article, by="IDARTICLE", all=FALSE)
+  setDT(ligne_article)
+  
+  #agregation de la table ligne article pour faire un regroupement par code univers et ID ticket
+  ligne_group_by_univers<-ligne_article[, .(TOTAL=sum(TOTAL))
+                                        ,by=.(IDTICKET,CODEUNIVERS)]
+  setDT(ligne_group_by_univers)
+  
+  #jointure interne entre la table entete ticket et la table ligne univers
+  entete_ligne_univers<-merge(table_entete_ticket,ligne_group_by_univers, by="IDTICKET", all=FALSE)
+  setDT(entete_ligne_univers)
+  
+  #transformation de la date du ticket en format date et ajout de l'année d'achat
+  #Modification du type pour le champs TIC_DATE en format date
+  entete_ligne_univers[,TIC_DATE:= as.Date(entete_ligne_univers$TIC_DATE)]
+  #recuperer l'année d'achat à partir du champs TIC_DATE transformé en format date
+  entete_ligne_univers[,TIC_YEAR:= year(entete_ligne_univers$TIC_DATE)]
+  #renommer le champ tic_year en année
+  entete_ligne_univers<-rename(entete_ligne_univers, ANNEE = TIC_YEAR)
+  
+  #agregation du CA par code univers et par année
+  univers<-entete_ligne_univers[, .(TOTAL=sum(TOTAL)),
+                                by=.(CODEUNIVERS, ANNEE)]
+  
+  
+  #afficher le graphe
+  ggplot(univers,aes(x=CODEUNIVERS,y=TOTAL,fill=factor(ANNEE)))+
+    geom_bar(stat="identity",position="dodge")+
+    scale_fill_discrete(name="ANNEE")+
+    xlab("UNIVERS")+ylab("TOTAL CA")+ 
+    scale_y_continuous(labels = c("0","2 M","4 M","6 M","8 M"))
+}
 
 
+# ---------------------------------------------------------------------------------------
+#    Fonction : top_par_univers_3.2()
+# Développeur : Dan Goldman.
+#        Date : 30 décembre 2018.
+#  Paramètres : 
+# Description : Cette fonction réalise un graphe de label presentant le top 5 de produit famille par univers
+#               
+# ---------------------------------------------------------------------------------------
 
+top_par_univers_3.2<- function(table_article,table_ligne_ticket){
+  #copie de la table article et renommer l'id code article
+  article<-rename(table_article, IDARTICLE = ï..CODEARTICLE)
+  
+  #Il y a un article acheté dans la table ligne ticket qui n'existe pas dans la table article
+  # ajout de l ID article 395460 dans la table article
+  newarticle <- data.frame(IDARTICLE='395460',CODEUNIVERS='unknown',CODEFAMILLE='unknown', CODESOUSFAMILLE='unknown')
+  article<- rbind(article,newarticle)
+  setDT(article)
+  
+  #jointure en left outer join entre article et ligne
+  #on recupere tous les articles
+  article_ligne<-merge(article,table_ligne_ticket, by="IDARTICLE", all.x=TRUE)
+  setDT(article_ligne)
+  
+  #remplacer le NA par 0 dans la margesortie
+  article_ligne<-article_ligne[is.na(MARGESORTIE)==TRUE, MARGESORTIE:=0]
+  
+  #agregation de la marge par code univers et code famille
+  top_univers_famille<-article_ligne[, .(MARGE=sum(MARGESORTIE)), by=.(CODEUNIVERS, CODEFAMILLE)]
+  
+  #trie de la table top_univers_famille
+  top_univers_famille<-top_univers_famille[order(CODEUNIVERS,MARGE, decreasing = TRUE),]
+  
+  #créé un rank de la marge par code univers
+  top_univers_famille <- within(top_univers_famille, rank <- ave(MARGE, CODEUNIVERS,
+                                                                 FUN=function(x)rev(order(x))))
+  
+  #afficher le resultat du rank par code univers et code famille
+  top_univers_famille<-subset(top_univers_famille, rank<=5)
+  
+  #afficher le graphe
+  ggplot(top_univers_famille, aes(x = CODEUNIVERS, y = MARGE, label = CODEFAMILLE, fill=CODEUNIVERS)) +
+    geom_label()
+}
 
 # =======================================================================================
 #
@@ -589,6 +686,7 @@ distance_Client_Magasin_2.2(insee, magasins, clients)
 # ---------------------------------------------------------------------------------------
 
 # 3.1 - Affichage d'un histogramme N-2 / N-1 évolution du CA par univers.
+etude_par_univers_3.1(articles,lignes,entetes)
 
 # 3.2 - Affichage du top 5 des familles les plus rentable par univers.
-
+top_par_univers_3.2(articles,lignes)
