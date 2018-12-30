@@ -28,7 +28,7 @@ require(tcltk)
 utilise_des_extraits_de_fichier <- FALSE
 
 # Chemins de dossier des fichiers de donnée respectifs dans le cas où on n'utilise pas la boite de dialogue.
-chemin_dossier_donnees_Thomas <- "..."
+chemin_dossier_donnees_Thomas <- "C:/Users/timti/Documents/R/Rproject/DATA/"
 chemin_dossier_donnees_Dan <- "..."
 chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
@@ -60,7 +60,7 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut) {
 
 # Affectation de la variable globale "chemin_dossier_donnees".
 # Cette valeur indique le chemin du dossier dans lequel se trouvent tous les fichiers de donnée.
-chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Nicolas)
+chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Thomas)
 
 # La liste des fichiers de donnees necessaires au projet.
 nom_fichier_INSEE <- "correspondance-code-insee-code-postal.csv"

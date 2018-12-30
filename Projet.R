@@ -119,7 +119,7 @@ repartition_adherant_vip_1.1 <- function(ANNEE,table_client){
 #    Fonction : comportement_CA_1.2()
 # Développeur : Juliette Lemains.
 #        Date : 28 décembre 2018.
-#  Paramètres : 
+#  Paramètres : table_entetes
 # Description : Cette fonction constitue une boite a moustache 
 #               comparant le CA des clients.
 # ---------------------------------------------------------------------------------------
@@ -139,8 +139,180 @@ comportement_CA_1.2 <- function(table_entetes){
                 boxpoints=FALSE,name="2017") %>%
     layout(title="Boite à moustache du CA TOTAL des clients par année d'achat",
            yaxis=list(title="CA Total des clients"))
-  }
+}
 
+# ---------------------------------------------------------------------------------------
+#    Fonction : proportion_sexe_age_1.3
+# Développeur : Thomas Fontaine
+#        Date : 29 décembre 2018.
+#  Paramètres : table_clients
+# Description : Cette fonction etudie la repartition par sexe et par age et la represente par
+#                 un graphique en bar.
+# ---------------------------------------------------------------------------------------
+proportion_sexe_age_1.3 <- function(table_clients){
+    
+  # Creation d'une table resultats a partir de la table clients. La table est cree avec une normalisation
+  # de la civilite.
+  clients_r<-table_clients%>%mutate(CIVILITE_r=recode(`CIVILITE`,
+                                                "MADAME" = "femme",
+                                                "Mme" = "femme",
+                                                "madame" = "femme",
+                                                "monsieur" = "homme",
+                                                "Mr" = "homme",
+                                                "MONSIEUR" = "homme"))
+  # Suppression des lignes clients sans date de naissance.
+  clients_r<- subset(clients_r, !is.na(DATENAISSANCE))
+  # creation d'une colonne age.
+  clients_r$age <- 2018 - as.numeric(format(as.Date(clients_r$DATENAISSANCE, tryFormats = c("%d/%m/%Y")),"%Y"))
+  # Suppression des clients agees de plus de 98ans.
+  clients_r<- subset(clients_r, age < 99 ) 
+  # Suppression des clients agees de moins de 18ans.
+  clients_r<- subset(clients_r, age > 17 ) 
+  # la population etudier sera donc les personnes qui ont renseiger leurs age et qui on actuellement entre 
+  # 18 et 98 ans (inclus).
+  # Creation des groupe client suivant leurs ages. 8 groupes de 18 � 98 ans.
+  clients_r$age_group <- cut(clients_r$age,seq(18,98,10), include.lowest= TRUE, right = FALSE)
+  #Creation d'une label pour l'affichage des resultats.
+  labels <- c(seq(100, 0, by=-2),seq(0, 100, by=2))
+  # Creation d'une table pour l'affichage des resultats.
+  data <- data.frame(sexe = clients_r$CIVILITE_r,age = clients_r$age, age_group = clients_r$age_group)
+  # Nombre de ligne dans la table data.
+  row_data <- nrow(data)
+  # Table data des femmes.
+  data_femme <- subset(data,sexe=="femme")
+  # Table data des hommes.
+  data_homme <- subset(data,sexe=="homme")
+  # Premier plot, repartition par sexe, ici les 18.89% en rose � gauche, repr�sente la proportion de femme
+  # de 58 � 67 ans par rapport au nombre total de femme.
+  gg_par_sexe <-  ggplot(data) +
+    aes(x=age_group,fill=sexe) +
+    geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/sum(..count..)*-100) )) + 
+    geom_text(data = subset(data,sexe=="femme"), stat = "count", aes(label = round(..count../sum(..count..)*100,2), y = (..count..)/sum(..count..)*-100))+
+    geom_bar(data = subset(data,sexe=="homme"),aes(y = (..count..)/sum(..count..)*100)) +
+    geom_text(data = subset(data,sexe=="homme"),stat = "count", aes(label = round(..count../sum(..count..)*100,2), y = (..count..)/sum(..count..)*100))+
+    scale_fill_manual(values = c("pink","blue")) + 
+    ylab("Proportion par sexe")+
+    coord_flip()
+  plot(gg_par_sexe)
+  
+  # Second plot, repartition total, ici les 11.47% en rose � gauche, repr�sente la proportion de femme
+  # de 58 � 67 ans par rapport au nombre total de la population
+  gg_global<-  ggplot(data) +
+    aes(x=age_group,fill=sexe) +
+    geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/row_data*-100) )) + 
+    geom_text(data = subset(data,sexe=="femme"), stat = "count", aes(label = round(..count../row_data*100,2), y = (..count..)/row_data*-100),  hjust = -0.01)+
+    geom_bar(data = subset(data,sexe=="homme"),aes(y = (..count..)/row_data*100)) +
+    geom_text(data = subset(data,sexe=="homme"),stat = "count", aes(label = round(..count../row_data*100,2), y = (..count..)/row_data*100),  hjust = -0.4)+
+    scale_fill_manual(values = c("pink","blue")) + 
+    ylab("Proportion global")+
+    coord_flip()
+  plot(gg_global)
+}
+
+# ---------------------------------------------------------------------------------------
+#    Fonction : resultat_magasin_2.1
+# Développeur : Thomas Fontaine
+#        Date : 29 décembre 2018.
+#  Paramètres : clients, magasins, entetes
+# Description : Cette fonction etudie les revenues et le nombre de client des magasins, ainsi que
+#                 l'evolution entre l'annee 2016 et 2017.
+# ---------------------------------------------------------------------------------------
+resultat_magasin_2.1 <- function(table_clients, table_magasins, table_entetes) {
+  # Comptage du nombre de client adherent par magasin
+  nombre_client_magasin <- table_clients %>% group_by(MAGASIN) %>%   summarise(nombreClient = n())
+  # Creation de la table resultat
+  cat("Creation de la table resultat...","\n")
+  resultat <- merge(x=table_magasins, y=nombre_client_magasin, by.x="CODESOCIETE", by.y="MAGASIN")
+  # Creation de la table representant l'activite de chaque magasin sur les deux annees
+  cat("Creation de la table activite_magasin...","\n")
+  activite_magasin <- table_entetes %>% group_by(MAG_CODE,IDCLIENT,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  
+  # Creation de la table representant l'activite de chaque magasin sur l'annee n-2
+  activite_magasin_n2 <- subset(activite_magasin, activite_magasin$year == '2016') %>% group_by(MAG_CODE) %>% summarise(clientActifN2 = n())
+  # Creation de la table representant l'activite de chaque magasin sur l'annee n-1
+  activite_magasin_n1 <- subset(activite_magasin, activite_magasin$year == '2017') %>% group_by(MAG_CODE) %>% summarise(clientActifN1 = n())
+  # Ajout de l'activite des magasins en n-2 au resultat
+  resultat <- merge(x=resultat, y=activite_magasin_n2, by.x="CODESOCIETE", by.y="MAG_CODE")
+  # Ajout de l'activite des magasins en n-1 au resultat
+  resultat <- merge(x=resultat, y=activite_magasin_n1, by.x="CODESOCIETE", by.y="MAG_CODE")
+  # Creation d'une colonne mesurant la variation de cette activite
+  resultat$evolutionClientActif <- round(resultat$clientActifN2/resultat$clientActifN1 * 100 -100,2)
+  # Creation de la table representant le total ttc de chaque magasin sur les deux annees
+  cat("Creation de la table TOTALTCC_magasin...","\n")
+  TOTALTCC_magasin <- table_entetes %>% group_by(MAG_CODE,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  %>%   summarise(TOTAL_TTC = sum(TIC_TOTALTTC))
+  # Creation de la table representant le total ttc de chaque magasin sur l'annee n-2
+  TOTALTTC_magasin_n2 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == '2016') %>% summarise(TOTAL_TTCN1 = TOTAL_TTC )
+  # Creation de la table representant le total ttc de chaque magasin sur l'annee n-1
+  TOTALTTC_magasin_n1 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == '2017')  %>% summarise(TOTAL_TTCN2 = TOTAL_TTC )
+  # Ajout du total ttc des magasins en n-2 au resultat
+  resultat <- merge(x=resultat, y=TOTALTTC_magasin_n2, by.x="CODESOCIETE", by.y="MAG_CODE")
+  # Ajout du total ttc des magasins en n-1 au resultat
+  resultat <- merge(x=resultat, y=TOTALTTC_magasin_n1, by.x="CODESOCIETE", by.y="MAG_CODE")
+  # Creation d'une colonne mesurant la variation du total total ttc
+  resultat$evolutionTOTALTTC <- resultat$TOTAL_TTCN2 - resultat$TOTAL_TTCN1 
+  # Boucle permettetant la creation de l'indice d'evolution de chaque magasins
+  cat("Creation de la table TOTALTCC_magasin'index...","\n")
+  for(i in c(1:nrow(resultat))){
+    if(resultat$evolutionClientActif[i] >= 0 & resultat$evolutionTOTALTTC[i] >= 0){
+      resultat$indices[i] <- 1
+    }else if(resultat$evolutionClientActif[i] < 0 & resultat$evolutionTOTALTTC[i] < 0){
+      resultat$indices[i] <- -1
+    }else{
+      resultat$indices[i] <- 0
+    }
+  }
+  #Tri du la table resultat en fonction de cette index
+  resultat <- resultat[order(-rank(resultat$indices))]
+  # Calcul des valeurs necessaire a l'ajotu d'une ligne total
+  cat("Creation de la ligne total...","\n")
+  total_Client <- sum(as.integer(resultat$nombreClient), na.rm = TRUE)
+  total_clientActifN2 <- sum(as.integer(resultat$clientActifN2), rm.na= TRUE)
+  total_clientActifN1 <- sum(as.integer(resultat$clientActifN1), rm.na= TRUE)
+  total_evolutionClientActif <- round(total_clientActifN2/total_clientActifN1 * 100 -100,2)
+  total_TOTALTTC_magasin_n2 <- sum(as.numeric(resultat$TOTAL_TTCN2), rm.na= TRUE)
+  total_TOTALTTC_magasin_n1 <- sum(as.numeric(resultat$TOTAL_TTCN1), rm.na= TRUE)
+  total_evolutionTOTALTTC <- total_TOTALTTC_magasin_n2 - total_TOTALTTC_magasin_n1
+  total_indice <- NULL
+  if(total_evolutionClientActif >= 0 & total_evolutionTOTALTTC >= 0){
+    total_indice <- 1
+  }else if(total_evolutionClientActif < 0 & total_evolutionTOTALTTC < 0){
+    total_indice <- -1
+  }else{
+    total_indice <- 0
+  }
+  total <- data.frame("Total",
+                      "France",
+                      as.integer(00),
+                      "France", 
+                      total_Client,
+                      total_clientActifN2,
+                      total_clientActifN1,
+                      total_evolutionClientActif,
+                      total_TOTALTTC_magasin_n2, 
+                      total_TOTALTTC_magasin_n1,
+                      total_evolutionTOTALTTC,
+                      total_indice
+  )
+  # Chagement du nom des colonnes de la table resultat
+  colnames(resultat) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices ?volutions")
+  # Chagement du nom des colonnes de la table total
+  names(total) <- c("Code Magasin", "Ville", "Departement","Region","Nombre Adherent", "Client Actif N-2","Client Actif N-1", "Evolution client Actif", "Total TTC N-2","Total TTC N-1", "Evolution Total TTC", "Indices ?volutions")
+  # Ajout de la ligne total
+  resultat <- rbind(resultat,total)
+  # creation du texte formatter utiliser sur l'evolution des clients actif et du total ttc
+  color_text_formatter <- formatter("span", 
+                                    style = x ~ formattable::style(color = ifelse(x > 0, "green", 
+                                                                                  ifelse(x < 0, "red", "black"))))
+  #  creation du  formatter utiliser pour representer l'index
+  improvement_formatter <- formatter("span", 
+                                     style = x ~ formattable::style(font.weight = "bold", 
+                                                                    color = ifelse(x > 0, "green", ifelse(x < 0, "red", "black"))), 
+                                     x ~ icontext(ifelse(x > 0, "arrow-up", ifelse(x < 0, "arrow-down", "arrow-right")), text = list(NULL))
+  )
+  #affichage du formattable
+  cat("Affichage du formattable...","\n")
+  formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = color_bar("lightblue"), "Indices ?volutions" = improvement_formatter))
+  
+}
 
 # ---------------------------------------------------------------------------------------
 #    Fonction : distance_Client_Magasin_2.2
@@ -400,12 +572,15 @@ comportement_CA_1.2(entetes)
 
 # 1.3	Répartition par age x sexe.
 
+proportion_sexe_age_1.3(clients)
+
 # ---------------------------------------------------------------------------------------
 # 2 -	ETUDE PAR MAGASIN
 # ---------------------------------------------------------------------------------------
 
 # 2.1	Résultat par magasin (+1 ligne Total).
-
+resultat_magasin_2.1(clients, magasins, entetes) 
+  
 # 2.2	Distance CLIENT <-> MAGASIN.
 distance_Client_Magasin_2.2(insee, magasins, clients)
 

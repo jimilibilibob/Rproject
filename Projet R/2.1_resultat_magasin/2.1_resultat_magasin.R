@@ -83,7 +83,7 @@ color_text_formatter <- formatter("span",
                             style = x ~ formattable::style(color = ifelse(x > 0, "green", 
                                                              ifelse(x < 0, "red", "black"))))
 
-improvement_formatter <- formattable::formatter("span", 
+improvement_formatter <- formatter("span", 
                                    style = x ~ formattable::style(font.weight = "bold", 
                                                      color = ifelse(x > 0, "green", ifelse(x < 0, "red", "black"))), 
                                    x ~ icontext(ifelse(x > 0, "arrow-up", ifelse(x < 0, "arrow-down", "arrow-right")), text = list(NULL))
