@@ -385,7 +385,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
 
 etude_par_univers_3.1<- function(table_article,table_ligne_ticket, table_entete_ticket){
   #renommer l'id code article correctement
-  article<-rename(table_article, IDARTICLE = ï..CODEARTICLE)
+  article<-rename(table_article, IDARTICLE = CODEARTICLE)
   setDT(article)
   
   #Il y a un article acheté dans la table ligne ticket qui n'existe pas dans la table article
@@ -441,7 +441,7 @@ etude_par_univers_3.1<- function(table_article,table_ligne_ticket, table_entete_
 
 top_par_univers_3.2<- function(table_article,table_ligne_ticket){
   #copie de la table article et renommer l'id code article
-  article<-rename(table_article, IDARTICLE = ï..CODEARTICLE)
+  article<-rename(table_article, IDARTICLE = CODEARTICLE)
   
   #Il y a un article acheté dans la table ligne ticket qui n'existe pas dans la table article
   # ajout de l ID article 395460 dans la table article
