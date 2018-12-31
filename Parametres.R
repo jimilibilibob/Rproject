@@ -21,7 +21,7 @@ chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/Data
 chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
 
-# Fonction "dossierFichiersDonnees".
+# Fonction "cheminDossierFichiersDonnees".
 # Cette fonction renvoie le chemin du dossier où se trouve les fichiers de données d'entrée.
 # Si aucun dossier n'est sélectionné, la fonction retourne "NA".
 cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "") {
