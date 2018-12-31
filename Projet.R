@@ -54,11 +54,11 @@ toRadians <- function (degree)
 distanceGeo <- function(lat1, lon1, lat2, lon2) 
 {
   rayonTerre <- 6371e3
-  Ï†1 <- toRadians(lat1)
-  Ï†2 <- toRadians(lat2)
-  Î”Ï† <- toRadians(lat2-lat1)
-  Î”Î» <- toRadians(lon2-lon1)
-  a <- (sin(Î”Ï†/2)^2) + cos(Ï†1) * cos(Ï†2) * (sin(Î”Î»/2)^2)
+  phi1 <- toRadians(lat1)
+  phi2 <- toRadians(lat2)
+  deltaPhi <- toRadians(lat2-lat1)
+  deltaLamba <- toRadians(lon2-lon1)
+  a <- (sin(deltaPhi/2)^2) + cos(phi1) * cos(phi2) * (sin(deltaLamba/2)^2)
   unMoinsA <- 1 - a
   c <- (2 * atan2(sqrt(a),sqrt(unMoinsA)))
   
@@ -170,7 +170,7 @@ proportion_sexe_age_1.3 <- function(table_clients){
   clients_r<- subset(clients_r, age > 17 ) 
   # la population etudier sera donc les personnes qui ont renseiger leurs age et qui on actuellement entre 
   # 18 et 98 ans (inclus).
-  # Creation des groupe client suivant leurs ages. 8 groupes de 18 à 98 ans.
+  # Creation des groupe client suivant leurs ages. 8 groupes de 18 ï¿½ 98 ans.
   clients_r$age_group <- cut(clients_r$age,seq(18,98,10), include.lowest= TRUE, right = FALSE)
   #Creation d'une label pour l'affichage des resultats.
   labels <- c(seq(100, 0, by=-2),seq(0, 100, by=2))
@@ -182,8 +182,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
   data_femme <- subset(data,sexe=="femme")
   # Table data des hommes.
   data_homme <- subset(data,sexe=="homme")
-  # Premier plot, repartition par sexe, ici les 18.89% en rose à gauche, représente la proportion de femme
-  # de 58 à 67 ans par rapport au nombre total de femme.
+  # Premier plot, repartition par sexe, ici les 18.89% en rose ? gauche, repr?sente la proportion de femme
+  # de 58 ? 67 ans par rapport au nombre total de femme.
   gg_par_sexe <-  ggplot(data) +
     aes(x=age_group,fill=sexe) +
     geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/sum(..count..)*-100) )) + 
@@ -195,8 +195,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
     coord_flip()
   plot(gg_par_sexe)
   
-  # Second plot, repartition total, ici les 11.47% en rose à gauche, représente la proportion de femme
-  # de 58 à 67 ans par rapport au nombre total de la population
+  # Second plot, repartition total, ici les 11.47% en rose ? gauche, repr?sente la proportion de femme
+  # de 58 ? 67 ans par rapport au nombre total de la population
   gg_global<-  ggplot(data) +
     aes(x=age_group,fill=sexe) +
     geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/row_data*-100) )) + 
