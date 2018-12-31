@@ -30,7 +30,7 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
   
   # Declaration du chemin du dossier dans lequel se trouve les fichiers de donnees.
   #chemin <- dlg_dir(default = getwd(), "Sélectionner le dossier où se trouvent les fichiers d'entrée", gui = .GUI)
-  chemin <- dlg_dir(default = getwd(), title = "Sélectionner le dossier où se trouvent les fichiers d'entrée")$res
+  chemin <- dlg_dir(default = getwd(), title = "Selection du dossier des fichiers d'entree")$res
   
   if (identical(chemin, character(0))) {
     
@@ -43,7 +43,7 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
   
   # Si la valeur de "chemin_dossier_donnees" n'a pas été renseignée, on affiche un message d'erreur.
   if (valeur_a_retourner == "") {
-    dlg_message("Le dossier contenant les fichiers d'entrée n'a pas été sélectionné. Les tables ne peuvent pas être chargées.", "ok", gui = .GUI)
+    dlg_message("Le dossier des fichiers d'entree n'a pas ete choisi. Les tables ne peuvent pas être chargees.", "ok", gui = .GUI)
     valeur_a_retourner = NA
   }
   
