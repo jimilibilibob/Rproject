@@ -29,7 +29,6 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
   valeur_a_retourner <- ""
   
   # Declaration du chemin du dossier dans lequel se trouve les fichiers de donnees.
-  #chemin <- dlg_dir(default = getwd(), "Sélectionner le dossier où se trouvent les fichiers d'entrée", gui = .GUI)
   chemin <- dlg_dir(default = getwd(), title = "Selection du dossier des fichiers d'entree")$res
   
   if (identical(chemin, character(0))) {
