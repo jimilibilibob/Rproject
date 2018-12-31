@@ -9,19 +9,6 @@
 #
 # ---------------------------------------------------------------------------------------
 
-# Chargement des libraries.
-require(assertthat)
-require(data.table)
-require(dplyr)
-require(formattable)
-require(ggplot2)
-require(plotly)
-require(rAmCharts)
-require(stringr)
-#require(tcltk)
-require(svDialogs)
-
-
 # La variable booléene "utilise_des_extraits_de_fichier" permet de sélectionner des extraits de fichiers
 # plutôt que les fichiers d'entrée volumineux du projet. Cela permet de travailler sur des machines moins véloces.
 # Mettre la valeur à TRUE lorsque l'on désire travailler avec des fichiers plus petits.
@@ -63,8 +50,6 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
   return(valeur_a_retourner)
 }
 
-
-
 # Affectation de la variable globale "chemin_dossier_donnees".
 # Cette valeur indique le chemin du dossier dans lequel se trouvent tous les fichiers de donnée.
 #chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Nicolas)
@@ -92,6 +77,24 @@ if (utilise_des_extraits_de_fichier == TRUE) {
 }else{
   nom_fichier_lignes <- "LIGNES_TICKET_V4.CSV"
 }
+
+# Fonction "chargementDesLibraries".
+# Cette fonction charge l'ensemble des libraries utiles au projet.
+# Elles sont automatiquement sélectionnées et installées dans le cas où elles sont manquantes.
+chargementDesLibraries <- function() {
+  
+  libraries_utilies <- c('assertthat', 'data.table', 'dplyr', 'formattable', 'ggplot2', 'plotly', 'rAmCharts', 'stringr', 'svDialogs')
+  
+  for (package in libraries_utilies) {
+    if (!require(package, character.only=T, quietly=T)) {
+      install.packages(package)
+      library(package, character.only=T)
+    }
+  } 
+}
+
+# On charge l'ensemble des libraries utiles au projet.
+chargementDesLibraries()
 
 # ------------------------------------------------------------------------------------
 # Fonction "chargementTableArticles"
