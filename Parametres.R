@@ -105,13 +105,13 @@ chargementTableArticles <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
     
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Articles...","\n")
 
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_articles)
 
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier articles
     tableArticles <- fread(chemin_fichier, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     
     # Cette ligne de code retire la ligne COUPON.
@@ -132,13 +132,13 @@ chargementTableMagasins <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
     
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Magasins...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_magasins)
     
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier magasins
     tableMagasins <- fread(chemin_fichier, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     
   }
@@ -156,13 +156,13 @@ chargementTableClients <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
     
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Clients","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_clients)
     
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier clients
     tableClients <- fread(chemin_fichier, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     tableClients[tableClients == ""] <- NA
     
@@ -181,13 +181,13 @@ chargementTableEntetes <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
   
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Entetes","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_entetes)
     
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier entêtes
     tableEntetes <- fread(chemin_fichier, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     
   }
@@ -205,13 +205,13 @@ chargementTableLignes <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
     
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Lignes...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_lignes)
     
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier lignes
     tableLignes <- fread(chemin_fichier, sep="|", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     
   }
@@ -229,13 +229,13 @@ chargementTableInsee <- function() {
   
   if (!is.na(chemin_dossier_donnees)) {
     
-    # information pour la console
+    # Information pour la console
     cat("Chargement de la table Insee...","\n")
     
     # Le chemin d'accès complet des fichiers de donnees.
     chemin_fichier <- paste0(chemin_dossier_donnees, nom_fichier_INSEE)
     
-    # Chargement du fichier des articles en 1 secondes
+    # Chargement du fichier code insee code postal.
     tableInsee <- fread(chemin_fichier, sep=";", header = TRUE, dec = ",", stringsAsFactors = FALSE)
     
   }
