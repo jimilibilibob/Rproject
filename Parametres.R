@@ -21,6 +21,24 @@ chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/Data
 chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
 
+# Fonction "chargementDesLibraries".
+# Cette fonction charge l'ensemble des libraries utiles au projet.
+# Elles sont automatiquement sélectionnées et installées dans le cas où elles sont manquantes.
+chargementDesLibraries <- function() {
+  
+  libraries_utilies <- c('assertthat', 'data.table', 'dplyr', 'formattable', 'ggplot2', 'plotly', 'rAmCharts', 'stringr', 'svDialogs')
+  
+  for (package in libraries_utilies) {
+    if (!require(package, character.only=T, quietly=T)) {
+      install.packages(package)
+      library(package, character.only=T)
+    }
+  } 
+}
+
+# On charge l'ensemble des libraries utiles au projet.
+chargementDesLibraries()
+
 # Fonction "cheminDossierFichiersDonnees".
 # Cette fonction renvoie le chemin du dossier où se trouve les fichiers de données d'entrée.
 # Si aucun dossier n'est sélectionné, la fonction retourne "NA".
@@ -29,15 +47,22 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
   valeur_a_retourner <- ""
   
   # Declaration du chemin du dossier dans lequel se trouve les fichiers de donnees.
-  chemin <- dlg_dir(default = getwd(), title = "Selection du dossier des fichiers d'entree")$res
-  
-  if (identical(chemin, character(0))) {
+  if (chemin_dossier_donnees_par_defaut == "") {
     
-    valeur_a_retourner <- chemin_dossier_donnees_par_defaut
+    chemin <- dlg_dir(default = getwd(), title = "Selection du dossier des fichiers d'entree")$res
+    
+    if (identical(chemin, character(0))) {
+      
+      valeur_a_retourner <- chemin_dossier_donnees_par_defaut
+      
+    }else{
+      
+      # Ajout d'un "/" pour le dossier sélectionné par l'utilisateur.
+      valeur_a_retourner <- paste0(chemin, "/")
+    }
     
   }else{
-    # Ajout d'un "/" pour le dossier sélectionné par l'utilisateur.
-    valeur_a_retourner <- paste0(chemin, "/")
+    valeur_a_retourner <- chemin_dossier_donnees_par_defaut
   }
   
   # Si la valeur de "chemin_dossier_donnees" n'a pas été renseignée, on affiche un message d'erreur.
@@ -76,24 +101,6 @@ if (utilise_des_extraits_de_fichier == TRUE) {
 }else{
   nom_fichier_lignes <- "LIGNES_TICKET_V4.CSV"
 }
-
-# Fonction "chargementDesLibraries".
-# Cette fonction charge l'ensemble des libraries utiles au projet.
-# Elles sont automatiquement sélectionnées et installées dans le cas où elles sont manquantes.
-chargementDesLibraries <- function() {
-  
-  libraries_utilies <- c('assertthat', 'data.table', 'dplyr', 'formattable', 'ggplot2', 'plotly', 'rAmCharts', 'stringr', 'svDialogs')
-  
-  for (package in libraries_utilies) {
-    if (!require(package, character.only=T, quietly=T)) {
-      install.packages(package)
-      library(package, character.only=T)
-    }
-  } 
-}
-
-# On charge l'ensemble des libraries utiles au projet.
-chargementDesLibraries()
 
 # ------------------------------------------------------------------------------------
 # Fonction "chargementTableArticles"
