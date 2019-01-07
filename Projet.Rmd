@@ -15,10 +15,14 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
 
 #Projet R - Cours Outils et Méthodologie
 
-**Objectif du projet :**\
-* Manipuler et analyser de la Data sous R.\
-* Programmer en R\
-* Sortir un rapport en utilisant R-Markdown\
+**Objectif du projet :**
+
+* Manipuler et analyser de la Data sous R.
+
+* Programmer en R
+
+* Sortir un rapport en utilisant R-Markdown
+
 
 **Contexte :**
 Une société X a envoyé ses données clients ainsi que ses achats sur l'année N-2 (2016) et N-1 (2017).
@@ -30,7 +34,7 @@ Rapport et programme à retourner pour le 13 janvier 2019 au plus tard.
 **Les données :**
 Les tables mises à disposition sont structurées de la manière suivante :
 
-(Si possible ajouter le graphoque de la structure des tables)
+![structure]("structure.png")
 
 # Enoncé
 
@@ -38,15 +42,20 @@ Les tables mises à disposition sont structurées de la manière suivante :
 
 ## 1.1	Répartition Adhérant / VIP ....
 
-Constituer un camembert suivant la répartition suivante :\
-* VIP : client étant VIP (VIP = 1)\
-* NEW_N2 : client ayant adhéré au cours de l'année N-2 (date début adhésion)\
-* NEW_N1 : client ayant adhéré au cours de l'année N-1 (date début adhésion)\
-* ADHERANT : client toujours en cours d'adhésion (date de fin d'adhésion > 2018/01/01)\
-* CHURNER : client ayant churner (date de fin d'adhésion < 2018/01/01)\
+**Constituer un camembert suivant la répartition suivante :**
 
-Note --> le critère le plus au-dessus est prioritaire.
-Exemple : un client étant VIP, et ayant adhéré sur l'année N-1 sera compté comme étant VIP 
+*	*VIP* : client étant VIP (VIP = 1)
+
+*	*NEW_N2* : client ayant adhéré au cours de l'année N-2 (date début adhésion)
+
+*	*NEW_N1* : client ayant adhéré au cours de l'année N-1 (date début adhésion)
+
+*	*ADHERANT* : client toujours en cours d'adhésion (date de fin d'adhésion > 2018/01/01)
+
+*	*CHURNER* : client ayant churner (date de fin d'adhésion < 2018/01/01)
+
+
+*Note : le critère le plus au-dessus est prioritaire, exemple : un client étant VIP, et ayant adhéré sur l'année N-1 sera compté comme étant VIP*
 
 ## 1.2	Comportement du CA GLOBAL par client N-2 vs N-1
 
@@ -62,14 +71,23 @@ Constituer un graphique montrant la répartition par age x sexe sur l'ensemble d
 ## 2.1	Résultat par magasin (+ 1 ligne Total)
 
 Constituer un tableau (formattable) reprenant les données suivantes :
+
 * MAGASIN
+
 * NOMBRE DE CLIENTS RATTACHES AU MAGASIN (avec une color_bar en fonction de la quantité)
+
 * NOMBRE DE CLIENTS ACTIFS sur N-2
+
 * NOMBRE DE CLIENTS ACTIFS sur N-1
+
 * % CLIENT N-2 vs N-1 (couleur police : vert si positif, rouge si négatif)
+
 * TOTAL_TTC N-2
+
 * TOTAL_TTC N-1
+
 * Différence entre N-2 et N-1 (couleur police : vert si positif, rouge si négatif)
+
 * Indice évolution (icône de satisfaction : positif si le pourcentage de clients actifs évolue et total TTC aussi, négatif si il y a une diminution des 2 indicateurs, moyen si seulement l'un des deux diminue)
 
 Note --> on effectuera un tri sur l'indice d'évolution : les positifs en haut, les négatifs en bas.
@@ -78,26 +96,36 @@ Note --> on effectuera un tri sur l'indice d'évolution : les positifs en haut, 
 
 L'objectif est de calculer la distance qui existe entre le magasin et le client.
 
-Les informations disponibles sont :\
-*	la ville du magasin\
+Les informations disponibles sont :
+
+*	la ville du magasin
+
 *	le code INSEE du client
 
 Il faut télécharger les données GPS des villes et code-insee pour pouvoir calculer la distance :\
 https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal
 
-Une fois les données acquises, il faut :\
-* lier les données GPS composé de la latitude et de la longitude au client et au magasin.\
-* constituer pour chaque client et chaque magasin 2 colonnes : latitude et longitude.\
+Une fois les données acquises, il faut :
+
+* lier les données GPS composé de la latitude et de la longitude au client et au magasin.
+
+* constituer pour chaque client et chaque magasin 2 colonnes : latitude et longitude.
+
 * créer une fonction qui détermine la distance entre 2 points.
 
 La fonction doit prendre 4 variable en compte : latitude1, longitude1, latitude2, longitude2.\
 Pour savoir si la fonction est correcte : http://www.lexilogos.com/calcul_distances.htm
 
-Constituer une représentation (tableau ou graphique --> au choix) représentant le nombre de client par distance :\
-* 0 à 5km\
-* 5 à 10km\
-* 10 à 20km\
-* 20 à 50km\
+Constituer une représentation (tableau ou graphique --> au choix) représentant le nombre de client par distance :
+
+* 0 à 5km
+
+* 5 à 10km
+
+* 10 à 20km
+
+* 20 à 50km
+
 * plus de 50km
 
 # 3 - Etude par univers
@@ -115,9 +143,12 @@ Afficher le top 5 des familles les plus rentable par univers (en fonction de la 
 
 ### 1. Mise en place de l'environnement de travail
 
-Chargement du fichier paramètres qui permet :\
-* le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.\
-* le chargement des variables des fichiers.\
+Chargement du fichier paramètres qui permet :
+
+* le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+
+* le chargement des variables des fichiers.
+
 * le chargement des tables.
 
 # 1 - Etude globale
@@ -341,8 +372,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
 #  Paramètres : clients, magasins, entetes
 # Description : Cette fonction etudie les revenues et le nombre de client des magasins, ainsi que
 #                 l'evolution entre l'annee 2016 et 2017.
-#               La population �tudi�e est d�finis par les clients ayant renseign� leurs ages et 
-#               qui ont un �ge compris entre 18 et 98 ans.
+#               La population ?tudi?e est d?finis par les clients ayant renseign? leurs ages et 
+#               qui ont un ?ge compris entre 18 et 98 ans.
 # ---------------------------------------------------------------------------------------
 resultat_magasin_2.1 <- function(table_clients, table_magasins, table_entetes) {
   # Comptage du nombre de client adherent par magasin
