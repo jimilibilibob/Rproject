@@ -15,6 +15,9 @@
 # Ne pas oublier de mettre cette valeur à FALSE lorsque le projet est finalisé.
 utilise_des_extraits_de_fichier <- FALSE
 
+# Declaration de la variable pour l'annee en cours 
+ANNEE_EN_COURS <- 2018
+
 # Chemins de dossier des fichiers de donnée respectifs dans le cas où on n'utilise pas la boite de dialogue.
 chemin_dossier_donnees_Thomas <- "C:/Users/timti/Documents/R/Rproject/DATA/"
 chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/"
