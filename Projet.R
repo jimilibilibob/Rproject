@@ -62,9 +62,9 @@ distanceGeo <- function(lat1, lon1, lat2, lon2)
   unMoinsA <- 1 - a
   c <- (2 * atan2(sqrt(a),sqrt(unMoinsA)))
   
-  distanceCalculÃ©e <- rayonTerre * c / 1000
+  distanceCalculee <- rayonTerre * c / 1000
   
-  return(distanceCalculÃ©e)
+  return(distanceCalculee)
 }
 
 # =======================================================================================
@@ -216,15 +216,15 @@ proportion_sexe_age_1.3 <- function(table_clients){
 #  ParamÃ¨tres : clients, magasins, entetes
 # Description : Cette fonction etudie les revenues et le nombre de client des magasins, ainsi que
 #                 l'evolution entre l'annee 2016 et 2017.
+#               La population étudiée est définis par les clients ayant renseigné leurs ages et 
+#               qui ont un âge compris entre 18 et 98 ans.
 # ---------------------------------------------------------------------------------------
 resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_entetes) {
   # Comptage du nombre de client adherent par magasin
   nombre_client_magasin <- table_clients %>% group_by(MAGASIN) %>%   summarise(nombreClient = n())
   # Creation de la table resultat
-  cat("Creation de la table resultat...","\n")
   resultat <- merge(x=table_magasins, y=nombre_client_magasin, by.x="CODESOCIETE", by.y="MAGASIN")
   # Creation de la table representant l'activite de chaque magasin sur les deux annees
-  cat("Creation de la table activite_magasin...","\n")
   activite_magasin <- table_entetes %>% group_by(MAG_CODE,IDCLIENT,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  
   # Creation de la table representant l'activite de chaque magasin sur l'annee n-2
   activite_magasin_n2 <- subset(activite_magasin, activite_magasin$year == str(ANNEE_EN_COURS-2)) %>% group_by(MAG_CODE) %>% summarise(clientActifN2 = n())
@@ -237,7 +237,6 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
   # Creation d'une colonne mesurant la variation de cette activite
   resultat$evolutionClientActif <- round(resultat$clientActifN2/resultat$clientActifN1 * 100 -100,2)
   # Creation de la table representant le total ttc de chaque magasin sur les deux annees
-  cat("Creation de la table TOTALTCC_magasin...","\n")
   TOTALTCC_magasin <- table_entetes %>% group_by(MAG_CODE,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  %>%   summarise(TOTAL_TTC = sum(TIC_TOTALTTC))
   # Creation de la table representant le total ttc de chaque magasin sur l'annee n-2
   TOTALTTC_magasin_n2 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == str(ANNEE_EN_COURS-2)) %>% summarise(TOTAL_TTCN1 = TOTAL_TTC )
