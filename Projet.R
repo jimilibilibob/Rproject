@@ -1,4 +1,4 @@
-source("Parametres.R")
+#source("Parametres.R")
 
 # =======================================================================================
 #
@@ -112,8 +112,9 @@ repartition_adherant_vip_1.1 <- function(ANNEE,table_client){
               "# Toujours adherant","Churner")
   
   plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type="pie")%>%
-    layout(title = "Repartition Adherant/VIP",legend = list(x = -1, y = 0.9))
+    layout(title = "Repartition Adherant/VIP",autosize=F)
 }
+
 
 # ---------------------------------------------------------------------------------------
 #    Fonction : comportement_CA_1.2()
@@ -133,13 +134,14 @@ comportement_CA_1.2 <- function(annee,table_entetes){
                                 (TOTALCA<quantile(client_CA$TOTALCA,c(0.99))))
   
   plot_ly(type="box") %>%
-    add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==ANNEE_EN_COURS-2]$TOTALCA,
+    add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==annee-2]$TOTALCA,
                 boxpoints=FALSE,name="2016") %>%
-    add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==ANNEE_EN_COURS-1]$TOTALCA,
+    add_boxplot(y=~client_CA_not_OUT[client_CA_not_OUT$year==annee-1]$TOTALCA,
                 boxpoints=FALSE,name="2017") %>%
-    layout(title="Boite à moustache du CA TOTAL des clients par année d'achat",
-           yaxis=list(title="CA Total des clients"))
+    layout(title="Boite a moustache du CA TOTAL des clients par annee d'achat",
+           yaxis=list(title="CA Total des clients"),autosize=F)
 }
+
 
 # ---------------------------------------------------------------------------------------
 #    Fonction : proportion_sexe_age_1.3
@@ -170,7 +172,7 @@ proportion_sexe_age_1.3 <- function(table_clients){
   clients_r<- subset(clients_r, age > 17 ) 
   # la population etudier sera donc les personnes qui ont renseiger leurs age et qui on actuellement entre 
   # 18 et 98 ans (inclus).
-  # Creation des groupe client suivant leurs ages. 8 groupes de 18 � 98 ans.
+  # Creation des groupe client suivant leurs ages. 8 groupes de 18 a 98 ans.
   clients_r$age_group <- cut(clients_r$age,seq(18,98,10), include.lowest= TRUE, right = FALSE)
   #Creation d'une label pour l'affichage des resultats.
   labels <- c(seq(100, 0, by=-2),seq(0, 100, by=2))
@@ -182,8 +184,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
   data_femme <- subset(data,sexe=="femme")
   # Table data des hommes.
   data_homme <- subset(data,sexe=="homme")
-  # Premier plot, repartition par sexe, ici les 18.89% en rose ? gauche, repr?sente la proportion de femme
-  # de 58 ? 67 ans par rapport au nombre total de femme.
+  # Premier plot, repartition par sexe, ici les 18.89% en rose a gauche, represente la proportion de femme
+  # de 58 a 67 ans par rapport au nombre total de femme.
   gg_par_sexe <-  ggplot(data) +
     aes(x=age_group,fill=sexe) +
     geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/sum(..count..)*-100) )) + 
@@ -195,8 +197,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
     coord_flip()
   plot(gg_par_sexe)
   
-  # Second plot, repartition total, ici les 11.47% en rose ? gauche, repr?sente la proportion de femme
-  # de 58 ? 67 ans par rapport au nombre total de la population
+  # Second plot, repartition total, ici les 11.47% en rose a gauche, represente la proportion de femme
+  # de 58 a 67 ans par rapport au nombre total de la population
   gg_global<-  ggplot(data) +
     aes(x=age_group,fill=sexe) +
     geom_bar(data = subset(data,sexe=="femme"),aes(y=((..count..)/row_data*-100) )) + 
@@ -216,8 +218,8 @@ proportion_sexe_age_1.3 <- function(table_clients){
 #  Paramètres : clients, magasins, entetes
 # Description : Cette fonction etudie les revenues et le nombre de client des magasins, ainsi que
 #                 l'evolution entre l'annee 2016 et 2017.
-#               La population �tudi�e est d�finis par les clients ayant renseign� leurs ages et 
-#               qui ont un �ge compris entre 18 et 98 ans.
+#               La population ?tudi?e est d?finis par les clients ayant renseign? leurs ages et 
+#               qui ont un ?ge compris entre 18 et 98 ans.
 # ---------------------------------------------------------------------------------------
 resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_entetes) {
   # Comptage du nombre de client adherent par magasin
@@ -227,9 +229,9 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
   # Creation de la table representant l'activite de chaque magasin sur les deux annees
   activite_magasin <- table_entetes %>% group_by(MAG_CODE,IDCLIENT,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  
   # Creation de la table representant l'activite de chaque magasin sur l'annee n-2
-  activite_magasin_n2 <- subset(activite_magasin, activite_magasin$year == str(ANNEE_EN_COURS-2)) %>% group_by(MAG_CODE) %>% summarise(clientActifN2 = n())
+  activite_magasin_n2 <- subset(activite_magasin, activite_magasin$year == as.integer(annee-2)) %>% group_by(MAG_CODE) %>% summarise(clientActifN2 = n())
   # Creation de la table representant l'activite de chaque magasin sur l'annee n-1
-  activite_magasin_n1 <- subset(activite_magasin, activite_magasin$year == str(ANNEE_EN_COURS-1)) %>% group_by(MAG_CODE) %>% summarise(clientActifN1 = n())
+  activite_magasin_n1 <- subset(activite_magasin, activite_magasin$year == as.integer(annee-1)) %>% group_by(MAG_CODE) %>% summarise(clientActifN1 = n())
   # Ajout de l'activite des magasins en n-2 au resultat
   resultat <- merge(x=resultat, y=activite_magasin_n2, by.x="CODESOCIETE", by.y="MAG_CODE")
   # Ajout de l'activite des magasins en n-1 au resultat
@@ -239,9 +241,9 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
   # Creation de la table representant le total ttc de chaque magasin sur les deux annees
   TOTALTCC_magasin <- table_entetes %>% group_by(MAG_CODE,year = format(as.Date(table_entetes$TIC_DATE),'%Y'))  %>%   summarise(TOTAL_TTC = sum(TIC_TOTALTTC))
   # Creation de la table representant le total ttc de chaque magasin sur l'annee n-2
-  TOTALTTC_magasin_n2 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == str(ANNEE_EN_COURS-2)) %>% summarise(TOTAL_TTCN1 = TOTAL_TTC )
+  TOTALTTC_magasin_n2 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == as.integer(annee-2)) %>% summarise(TOTAL_TTCN1 = TOTAL_TTC )
   # Creation de la table representant le total ttc de chaque magasin sur l'annee n-1
-  TOTALTTC_magasin_n1 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == str(ANNEE_EN_COURS-1))  %>% summarise(TOTAL_TTCN2 = TOTAL_TTC )
+  TOTALTTC_magasin_n1 <- subset(TOTALTCC_magasin, TOTALTCC_magasin$year == as.integer(annee-1))  %>% summarise(TOTAL_TTCN2 = TOTAL_TTC )
   # Ajout du total ttc des magasins en n-2 au resultat
   resultat <- merge(x=resultat, y=TOTALTTC_magasin_n2, by.x="CODESOCIETE", by.y="MAG_CODE")
   # Ajout du total ttc des magasins en n-1 au resultat
@@ -367,7 +369,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
   setnames(table_de_travail_insee, old=c("Code Postal"), new=c("NUMDEPT"))
   # 2a3 - on renomme la colonne "Commune" en "VILLE".
   setnames(table_de_travail_insee, old=c("Commune"), new=c("VILLE"))
-  # 2a4 - On "splite" les informations contenues dans geo_point_2d et on les insère dans les 2 colonnes "LATITUDE" et "LONGITUDE".
+  # 2a4 - On "splite" les informations contenues dans geo_point_2d et on les insere dans les 2 colonnes "LATITUDE" et "LONGITUDE".
   table_de_travail_insee[, c("LATITUDE", "LONGITUDE") := tstrsplit(geo_point_2d, ", ", fixed=TRUE)]
   table_de_travail_insee[,geo_point_2d:=NULL] # on élimine la colonne "geo_point_2d" devenue inutile.
   # On tronque le numéro de code postal pour obtenir le numéro de département qui nous permmettra
@@ -669,35 +671,34 @@ top_par_univers_3.2<- function(table_article,table_ligne_ticket){
 # L'ensemble des tables définies et nécessaires au projet, sont chargées depuis le
 # fichier "Paramètres.R".
 
-# ---------------------------------------------------------------------------------------
-# 1 -	ETUDE GLOBALE
-# ---------------------------------------------------------------------------------------
-
-# 1.1	Répartition Adhérant / VIP.
-repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
-
-# 1.2	Comportement du CA GLOBAL par client N-2 vs N-1.
-comportement_CA_1.2(ANNEE_EN_COURS,entetes)
-
-# 1.3	Répartition par age x sexe.
-proportion_sexe_age_1.3(clients)
-
-# ---------------------------------------------------------------------------------------
-# 2 -	ETUDE PAR MAGASIN
-# ---------------------------------------------------------------------------------------
-
-# 2.1	Résultat par magasin (+1 ligne Total).
-resultat_magasin_2.1(clients, magasins, entetes) 
-
-# 2.2	Distance CLIENT <-> MAGASIN.
-distance_Client_Magasin_2.2(insee, magasins, clients)
-
-# ---------------------------------------------------------------------------------------
-# 3 -	ETUDE PAR UNIVERS
-# ---------------------------------------------------------------------------------------
-
-# 3.1 - Affichage d'un histogramme N-2 / N-1 évolution du CA par univers.
-etude_par_univers_3.1(articles,lignes,entetes)
-
-# 3.2 - Affichage du top 5 des familles les plus rentable par univers.
-top_par_univers_3.2(articles,lignes)
+# # ---------------------------------------------------------------------------------------
+# # 1 -	ETUDE GLOBALE
+# # ---------------------------------------------------------------------------------------
+# 
+# # 1.1	Répartition Adhérant / VIP.
+# repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
+# 
+# # 1.2	Comportement du CA GLOBAL par client N-2 vs N-1.
+# comportement_CA_1.2(ANNEE_EN_COURS,entetes)
+# 
+# # 1.3	Répartition par age x sexe.
+# proportion_sexe_age_1.3(clients)
+# 
+# # ---------------------------------------------------------------------------------------
+# # 2 -	ETUDE PAR MAGASIN
+# # ---------------------------------------------------------------------------------------
+# 
+# # 2.1	Résultat par magasin (+1 ligne Total).
+# resultat_magasin_2.1(ANNEE_EN_COURS,clients, magasins, entetes) 
+# # 2.2	Distance CLIENT <-> MAGASIN.
+# distance_Client_Magasin_2.2(insee, magasins, clients)
+# 
+# # ---------------------------------------------------------------------------------------
+# # 3 -	ETUDE PAR UNIVERS
+# # ---------------------------------------------------------------------------------------
+# 
+# # 3.1 - Affichage d'un histogramme N-2 / N-1 évolution du CA par univers.
+# etude_par_univers_3.1(articles,lignes,entetes)
+# 
+# # 3.2 - Affichage du top 5 des familles les plus rentable par univers.
+# top_par_univers_3.2(articles,lignes)

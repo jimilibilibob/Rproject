@@ -69,7 +69,7 @@ levels <- c("# VIP","# adherant au cours de N-2","# adherant au cours de N-1",
           "# Toujours adherant","Churner")
 
 plot_ly(data.frame(cbind(slices,levels)), labels = ~levels,values=~slices, type="pie")%>%
-  layout(title = "Repartition Adherant/VIP",legend = list(x = -1, y = 0.9))
+  layout(autosize=F,title = "Repartition Adherant/VIP")
 
 
 #------------1.2	Comportement du CA GLOBAL par client N-2 vs N-1

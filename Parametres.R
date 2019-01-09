@@ -13,7 +13,7 @@
 # plutôt que les fichiers d'entrée volumineux du projet. Cela permet de travailler sur des machines moins véloces.
 # Mettre la valeur à TRUE lorsque l'on désire travailler avec des fichiers plus petits.
 # Ne pas oublier de mettre cette valeur à FALSE lorsque le projet est finalisé.
-utilise_des_extraits_de_fichier <- FALSE
+utilise_des_extraits_de_fichier <- TRUE
 
 # Declaration de la variable pour l'annee en cours 
 ANNEE_EN_COURS <- 2018
@@ -21,7 +21,7 @@ ANNEE_EN_COURS <- 2018
 # Chemins de dossier des fichiers de donnée respectifs dans le cas où on n'utilise pas la boite de dialogue.
 chemin_dossier_donnees_Thomas <- "C:/Users/timti/Documents/R/Rproject/DATA/"
 chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/"
-chemin_dossier_donnees_Juliette <- "/Users/Juliette/Desktop/MBA/Data Projet/"
+chemin_dossier_donnees_Juliette <- "C:/Users/Juliette/Rproject/DATA_UTF-8/"
 chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
 
 # Fonction "chargementDesLibraries".
@@ -80,7 +80,7 @@ cheminDossierFichiersDonnees <- function(chemin_dossier_donnees_par_defaut = "")
 # Affectation de la variable globale "chemin_dossier_donnees".
 # Cette valeur indique le chemin du dossier dans lequel se trouvent tous les fichiers de donnée.
 #chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Nicolas)
-chemin_dossier_donnees <- cheminDossierFichiersDonnees()
+chemin_dossier_donnees <- cheminDossierFichiersDonnees(chemin_dossier_donnees_Juliette)
 
 # La liste des fichiers de donnees necessaires au projet.
 nom_fichier_INSEE <- "correspondance-code-insee-code-postal.csv"
