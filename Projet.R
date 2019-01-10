@@ -502,27 +502,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
     summarise(NB_TOTAL_CLIENTS = n())
   
   #--------------------------------------------------------------------------------------------
-  # ETAPE 7a - AFFICHAGE DES RESULTAS AU FORMAT GRAPHIQUE : amPie
-  #--------------------------------------------------------------------------------------------
-  
-  # Création d'un data frame pour une utilisation spécifique avec amPie.
-  # avec le pourcentage de clients pour chacune des bornes définies plus haut.
-  info_distance_pour_amPie <- jointureGeoMagasinsClients %>%
-    # Avec group_by on regroupe les clients en fonction des 5 intervalles de distances
-    group_by(BORNE_DISTANCE) %>%
-    # On compte avec n() le nombre de clients et on calcule le pourcentage de chacun pour chaque intervalle
-    summarise(value = n(), 
-              POURCENTAGE_CLIENTS = round((value/nb_total_clients$NB_TOTAL_CLIENTS*100),2)) %>% 
-    arrange(BORNE_DISTANCE) %>%
-    # Ici on "créé/sélectionne" 2 colonnes obligatoire pour un amPie : la colonne label et la colonne value.
-    select(label = BORNE_DISTANCE, value)
-  
-  # Affiche un "beignet" avec un trou en son centre de 50 et une épaisseur de 10.
-  # Ce graphique affiche le pourcentage de chacune des populations selon la distance avec leur magasin.
-  amPie(data = info_distance_pour_amPie, inner_radius = 50, depth = 10, show_values = TRUE, legend = TRUE)
-  
-  #--------------------------------------------------------------------------------------------
-  # ETAPE 7b - AFFICHAGE DES RESULTAS AU FORMAT TABLEAU : formattable
+  # AFFICHAGE DES RESULTAS AU FORMAT TABLEAU : formattable
   #--------------------------------------------------------------------------------------------
   
   # Cette fois-ci création d'un data frame pour une utilisation spécifique avec formattable
@@ -555,7 +535,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
               check.names = TRUE,
               align=c("l","r","r")
   )
-  
+
 }
 
 #Autres fonctions des autres exos
@@ -667,38 +647,62 @@ top_par_univers_3.2<- function(table_article,table_ligne_ticket){
 #
 # =======================================================================================
 
-# Chargement des tables :
+# ---------------------------------------------------------------------------------------
+#    Fonction : execute_project_code
+# Développeur : Dan Goldman.
+#        Date : 30 décembre 2018.
+#  Paramètres : execution_via_Markdown
+# Description : Cette fonction exécute tout le code du projet si l'exécution du code
+#               ne doit pas se faire au travaers de R-Markdown.
+# ---------------------------------------------------------------------------------------
+
+execute_project_code <- function(execute) {
+  
+  if (execute == TRUE) {
+    
+  # ---------------------------------------------------------------------------------------
+  # 1 -	ETUDE GLOBALE
+  # ---------------------------------------------------------------------------------------
+
+  # 1.1	Répartition Adhérant / VIP.
+  repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
+
+  # 1.2	Comportement du CA GLOBAL par client N-2 vs N-1.
+  comportement_CA_1.2(ANNEE_EN_COURS,entetes)
+
+  # 1.3	Répartition par age x sexe.
+  proportion_sexe_age_1.3(clients)
+
+  # ---------------------------------------------------------------------------------------
+  # 2 -	ETUDE PAR MAGASIN
+  # ---------------------------------------------------------------------------------------
+
+  # 2.1	Résultat par magasin (+1 ligne Total).
+  resultat_magasin_2.1(ANNEE_EN_COURS,clients, magasins, entetes)
+  # 2.2	Distance CLIENT <-> MAGASIN.
+  distance_Client_Magasin_2.2(insee, magasins, clients)
+
+  # ---------------------------------------------------------------------------------------
+  # 3 -	ETUDE PAR UNIVERS
+  # ---------------------------------------------------------------------------------------
+
+  # 3.1 - Affichage d'un histogramme N-2 / N-1 évolution du CA par univers.
+  etude_par_univers_3.1(articles,lignes,entetes)
+
+  # 3.2 - Affichage du top 5 des familles les plus rentable par univers.
+  top_par_univers_3.2(articles,lignes)
+  
+  }
+}
+
+# Chargement des tables dans "Paramètres.R" :
 # L'ensemble des tables définies et nécessaires au projet, sont chargées depuis le
 # fichier "Paramètres.R".
 
-# # ---------------------------------------------------------------------------------------
-# # 1 -	ETUDE GLOBALE
-# # ---------------------------------------------------------------------------------------
-# 
-# # 1.1	Répartition Adhérant / VIP.
-# repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
-# 
-# # 1.2	Comportement du CA GLOBAL par client N-2 vs N-1.
-# comportement_CA_1.2(ANNEE_EN_COURS,entetes)
-# 
-# # 1.3	Répartition par age x sexe.
-# proportion_sexe_age_1.3(clients)
-# 
-# # ---------------------------------------------------------------------------------------
-# # 2 -	ETUDE PAR MAGASIN
-# # ---------------------------------------------------------------------------------------
-# 
-# # 2.1	Résultat par magasin (+1 ligne Total).
-# resultat_magasin_2.1(ANNEE_EN_COURS,clients, magasins, entetes) 
-# # 2.2	Distance CLIENT <-> MAGASIN.
-# distance_Client_Magasin_2.2(insee, magasins, clients)
-# 
-# # ---------------------------------------------------------------------------------------
-# # 3 -	ETUDE PAR UNIVERS
-# # ---------------------------------------------------------------------------------------
-# 
-# # 3.1 - Affichage d'un histogramme N-2 / N-1 évolution du CA par univers.
-# etude_par_univers_3.1(articles,lignes,entetes)
-# 
-# # 3.2 - Affichage du top 5 des familles les plus rentable par univers.
-# top_par_univers_3.2(articles,lignes)
+# On exécute le projet dans ce fichier, si la valeur est égale à TRUE.
+# Ici elle est mise à FALSE car nous avons choisi de lancer l'exécution du code à partir du Markdown.
+# Si vous voulez mettre la valeur à TRUE, pensez à enlever le commentaire devant l'appel source("Parametres.R") 
+# qui se trouve en entête du fichier, sous peine d'obtenir une erreur d'exécution !
+execute_project_code(FALSE)
+
+
