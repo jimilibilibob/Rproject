@@ -13,7 +13,7 @@
 # plutôt que les fichiers d'entrée volumineux du projet. Cela permet de travailler sur des machines moins véloces.
 # Mettre la valeur à TRUE lorsque l'on désire travailler avec des fichiers plus petits.
 # Ne pas oublier de mettre cette valeur à FALSE lorsque le projet est finalisé.
-utilise_des_extraits_de_fichier <- FALSE
+utilise_des_extraits_de_fichier <- TRUE
 
 # Boolean qui modifie le comportement de l'application si on l'exécute depuis R-Markdown ou depuis le fichier "Projet.R".
 execution_avec_RMarkdown <- TRUE
@@ -25,7 +25,7 @@ ANNEE_EN_COURS <- 2018
 chemin_dossier_donnees_Thomas <- "C:/Users/timti/Documents/R/Rproject/DATA/"
 chemin_dossier_donnees_Dan <- "C:/Users/dgoldman/Desktop/MBA - BIG DATA CDO/DataMining/projet transverse R/Projet R a rendre/DATA/"
 chemin_dossier_donnees_Juliette <- "C:/Users/Juliette/Rproject/DATA_UTF-8/"
-chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA/"
+chemin_dossier_donnees_Nicolas <- "/Users/nrobin/Documents/GitHub/Rproject/DATA_UTF-8/"
 chemin_dossier_donnees_Jeremy <- "C:/Users/à définir si nécessaire..."
 
 # SELECTION DU CHEMIN DE DOSSIER DES FICHIERS DE DONNEES PAR DEFAUT.
