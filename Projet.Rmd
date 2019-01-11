@@ -280,21 +280,33 @@ distance_Client_Magasin_2.2(insee, magasins, clients)
 # 3 - Etude par univers
 
 ## 3.1 Evolution du CA par univers
-cette fonction permet d'afficher un histogramme presentant le CA par univers produit et par année d'achat.
-Concernant le perimetre des données, nous privilegions des jointures internes entre les tables, permettant de determiner si l'unification des données engendre une perte de volumetrie.
+
+Cette fonction permet d'afficher un histogramme presentant le CA par univers produit et par année d'achat.
+
+Concernant le périmètre des données, nous privilegions des jointures internes entre les tables, permettant de determiner si l'unification des données engendre une perte de volumetrie.
+
 Le constat d'analyse est le suivant :
-- Un article vendu de la table "ligne" n'est pas référencé dans la table "article". Nous avons donc fait le choix de rajouter ce dernier afin de ne pas perdre l'information lors de l'agrégation des données (cette article a été nommé "unknown dans la table article")
-- Tous les articles n'ayant pas été vendus (à savoir non présent dans la table ligne) sont exclus de l'analyse.
+
+* Un article vendu de la table "ligne" n'est pas référencé dans la table "article". Nous avons donc fait le choix de rajouter ce dernier afin de ne pas perdre l'information lors de l'agrégation des données (cette article a été nommé "unknown dans la table article")
+
+* Tous les articles n'ayant pas été vendus (à savoir non présent dans la table ligne) sont exclus de l'analyse.
+
 ```{r Exercice_3.1_Etude_par_univers}
 etude_par_univers_3.1(articles,lignes,entetes)
 ```
 
 ## 3.2	Top 5 des familles les plus rentable par univers
-Cette fonction permet d'afficher un graphe representant un top 5 des familles les plus rentable par univers
-Concernant le perimetre des données, nous privilegions d'afficher tous les articles, meme si ces derniers n'ont pas générés de marge. 
+
+Cette fonction permet d'afficher un graphe representant un top 5 des familles les plus rentable par univers.
+
+Concernant le périmètre des données, nous privilégions d'afficher tous les articles, même si ces derniers n'ont pas générés de marge.
+
 Le constat d'analyse est le suivant :
-- certains articles n'ont pas été vendus (à savoir non présent dans la table ligne)
-- La marge a été forcée à 0 pour tous ces articles non vendus.
+
+* Certains articles n'ont pas été vendus (à savoir non présent dans la table ligne)
+
+* La marge a été forcée à 0 pour tous ces articles non vendus.
+
 ```{r Exercice_3.2_Top_par_univers}
 top_par_univers_3.2(articles,lignes)
 ```
