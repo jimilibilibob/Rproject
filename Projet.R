@@ -251,7 +251,7 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
   # Creation d'une colonne mesurant la variation du total total ttc
   resultat$evolutionTOTALTTC <- resultat$TOTAL_TTCN2 - resultat$TOTAL_TTCN1 
   # Boucle permettetant la creation de l'indice d'evolution de chaque magasins
-  cat("Creation de la table TOTALTCC_magasin'index...","\n")
+  # Creation de la table TOTALTCC_magasin'index...
   for(i in c(1:nrow(resultat))){
     if(resultat$evolutionClientActif[i] >= 0 & resultat$evolutionTOTALTTC[i] >= 0){
       resultat$indices[i] <- 1
@@ -264,7 +264,7 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
   #Tri du la table resultat en fonction de cette index
   resultat <- resultat[order(-rank(resultat$indices))]
   # Calcul des valeurs necessaire a l'ajotu d'une ligne total
-  cat("Creation de la ligne total...","\n")
+  # Creation de la ligne total...
   total_Client <- sum(as.integer(resultat$nombreClient), na.rm = TRUE)
   total_clientActifN2 <- sum(as.integer(resultat$clientActifN2), rm.na= TRUE)
   total_clientActifN1 <- sum(as.integer(resultat$clientActifN1), rm.na= TRUE)
@@ -309,9 +309,9 @@ resultat_magasin_2.1 <- function(annee, table_clients, table_magasins, table_ent
                                                                     color = ifelse(x > 0, "green", ifelse(x < 0, "red", "black"))), 
                                      x ~ icontext(ifelse(x > 0, "arrow-up", ifelse(x < 0, "arrow-down", "arrow-right")), text = list(NULL))
   )
-  #affichage du formattable
-  cat("Affichage du formattable...","\n")
-  formattable(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = color_bar("lightblue"), "Indices ?volutions" = improvement_formatter))
+  
+  # Affichage du formattable
+  format_table(resultat, list("Evolution client Actif" = color_text_formatter, "Evolution Total TTC"= color_text_formatter,  "Nombre Adherent" = color_bar("lightblue"), "Indices ?volutions" = improvement_formatter))
   
 }
 
@@ -528,7 +528,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
   # Ajout de la ligne total
   info_distance_pour_formattable <- rbind(info_distance_pour_formattable,total)
   
-  # Affiche un tableau avec un barre permettant de mieux visualiser le pourcenatge de la population.
+  # Affiche un tableau avec une barre permettant de mieux visualiser le pourcentage de la population.
   formattable(info_distance_pour_formattable,
               list('POURCENTAGE DE CLIENTS' = normalize_bar("cornflowerblue", 0.14)),
               check.rows = FALSE,
