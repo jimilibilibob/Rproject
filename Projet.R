@@ -638,7 +638,8 @@ top_par_univers_3.2<- function(table_article,table_ligne_ticket){
   
   #afficher le graphe
   ggplot(top_univers_famille, aes(x = CODEUNIVERS, y = MARGE, label = CODEFAMILLE, fill=CODEUNIVERS)) +
-    geom_label()
+    geom_label()+
+    scale_y_continuous(labels = c("0","10 M","20 M","30 M"))
 }
 
 # =======================================================================================
