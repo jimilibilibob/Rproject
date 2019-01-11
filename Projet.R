@@ -360,7 +360,7 @@ distance_Client_Magasin_2.2 <- function(table_insee, table_magasins, table_clien
   # On récupère uniquement les 4 colonnes qui nous intéressent :
   # - CODEINSEE, Code Postal, Commune et geo_point_2d.
   # table_de_travail_insee <- table_insee[, list('Code INSEE', 'Code Postal', Commune, geo_point_2d)]
-  table_de_travail_insee <- table_insee[, c(1,2,3, 10)]
+  table_de_travail_insee <- table_de_travail_insee[, c(1,2,3, 10)]
   
   # Pour pouvoir faire les jointures avec les tables magasinss et clients :
   # 2a1 - on renomme la colonne "Code INSEE" en "CODEINSEE".
