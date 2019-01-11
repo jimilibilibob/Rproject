@@ -5,8 +5,6 @@ date: "02/01/2019"
 always_allow_html: yes
 output:
   html_document: default
-  word_document: default
-  pdf_document: default
 ---
 
 ```{r global_options, include=FALSE}
@@ -36,9 +34,9 @@ Les tables mises à disposition sont structurées de la manière suivante :
 
 ![](structure.png)
 
-# Enoncé
+# Énoncé
 
-# 1 - Etude globale
+# 1 - Étude globale
 
 ## 1.1	Répartition Adhérant / VIP ....
 
@@ -61,12 +59,12 @@ Constituer un camembert suivant la répartition suivante :
 
 Constituer une boite à moustache pour chaque année (N-2 et N-1) comparant le CA TOTAL (TTC) des clients (sommer les achats par client par années)
 
-## 1.3	Répartition par age x sexe
+## 1.3	Répartition par âge x sexe
 
 Constituer un graphique montrant la répartition par age x sexe sur l'ensemble des clients.
 		
 
-# 2 -	Etude par magasin
+# 2 -	Étude par magasin
 
 ## 2.1	Résultat par magasin (+ 1 ligne Total)
 
@@ -113,7 +111,7 @@ Une fois les données acquises, il faut :
 
 * créer une fonction qui détermine la distance entre 2 points.
 
-La fonction doit prendre 4 variable en compte : latitude1, longitude1, latitude2, longitude2.\
+La fonction doit prendre 4 variables en compte : latitude1, longitude1, latitude2, longitude2.\
 Pour savoir si la fonction est correcte : http://www.lexilogos.com/calcul_distances.htm
 
 Constituer une représentation (tableau ou graphique --> au choix) représentant le nombre de client par distance :
@@ -147,13 +145,13 @@ Afficher le top 5 des familles les plus rentable par univers (en fonction de la 
 
 La consigne de ce projet était la création et l'utilisation de 3 fichiers :
 
-* le fichier "Paramètres.R"
+* le fichier "Parametres.R"
 
 * le fichier "Projet.R"
 
 * le fichier "Projet.Rmd"
 
-Dans le cadre de cette exigence, nous avons mis toutes les constantes et variables du projet dans le fichier "Paramètres.R".
+Dans le cadre de cette exigence, nous avons mis toutes les constantes et variables du projet dans le fichier "Parametres.R".
 Nous avons aussi ajouté dans ce fichier, et comme cela l'a été demandé, les fonctions de chargement des tables.
 
 Nous avons ensuite fait le choix de découper le projet en différentes fonctions indépendantes, de manière à faciliter l'organisation du travail en équipe. 7 fonctions ont été crées, soit 1 fonction par exercice demandé :
@@ -181,7 +179,7 @@ Si vous désirez obtenir des informations supplémentaires sur chacune des fonct
 
 Chargement du fichier paramètres qui permet :
 
-* le chargement des biliothèques nécessaires à l'éxecutuon des scripts R de ce fichier.
+* le chargement des bibliothèques nécessaires à l'exécutuon des scripts R de ce fichier.
 
 * le chargement des variables des fichiers.
 
@@ -203,7 +201,7 @@ source("Projet.R")
 
 ## 1.1	Répartition Adhérant / VIP ....
 
-La fonction qui suit permet de générer un camembert représentant la répartition des clients VIP, adhérants au cours de N-1, adhérant au cours de N-2 et les churner. Il a bien entendu fallu, dans la définition de la fonction, gérer les clients qui appartiennent à deux ensembles.
+La fonction qui suit permet de générer un camembert représentant la répartition des clients VIP, adhérents au cours de N-1, adhérant au cours de N-2 et les churner. Il a bien entendu fallu, dans la définition de la fonction, gérer les clients qui appartiennent à deux ensembles.
 
 ```{r Exercice_1.1_repartition_adherant_vip}
 repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
@@ -211,19 +209,19 @@ repartition_adherant_vip_1.1(ANNEE_EN_COURS,convert_date_client(clients))
 
 ## 1.2	Comportement du CA GLOBAL par client N-2 vs N-1
 
-Cette fonction représente deux boites à moustache représentants les CA par clients sur l'année N-1 et N-2. Lors de la définition de cette fonction, il a fallu exclure les valeurs abérrantes qui biaisaient énormément la répartition.
+Cette fonction représente deux boites à moustache représentants les CA par clients sur l'année N-1 et N-2. Lors de la définition de cette fonction, il a fallu exclure les valeurs aberrantes qui biaisaient énormément la répartition.
 ```{r Exercice_1.2_comportement_CA}
 comportement_CA_1.2(ANNEE_EN_COURS,entetes)
 ```
 
-## 1.3	Répartition par age x sexe
+## 1.3	Répartition par âge x sexe
 
 INTRO 1.3
 ```{r Exercice_1.3_Proportion_sexe_age}
 proportion_sexe_age_1.3(clients)
 ```
 
-# 2 -	Etude par magasin
+# 2 -	Étude par magasin
 
 ## 2.1	Résultat par magasin (+ 1 ligne Total)
 
@@ -236,12 +234,12 @@ resultat_magasin_2.1(ANNEE_EN_COURS,clients, magasins, entetes)
 
 #### Cette partie du projet a été divisée en 7 étapes distinctes.
 
-**Etape 1 : Construction et préparation de la "TABLE_DE_TRAVAIL"**
+**Étape 1 : Construction et préparation de la "TABLE_DE_TRAVAIL"**
 
 Cette table est une *version aménagée et simplifiée de la table de correspondance de l'INSEE*.
 Elle récupère uniquement les 4 colonnes qui nous intéressent : CODEINSEE, Code Postal, Commune et geo_point_2d.
 
-**Etape 2 : Phase de traitement des données et rétablissement de la cohérence des données.**
+**Étape 2 : Phase de traitement des données et rétablissement de la cohérence des données.**
 
 Cette phase permet de rétablir la cohérence entre les tables "TABLE_DE_TRAVAIL, MAGASINS et CLIENTS
 
@@ -253,25 +251,25 @@ Par exemple :
 
 * On retire le mot "CEDEX" trouvé dans certains noms de villes.
 
-**Etape 3 : Jointure entre les tables "MAGASINS" et "TABLE DE TRAVAIL" avec mise en forme de la table nouvellement créé.**
+**Étape 3 : Jointure entre les tables "MAGASINS" et "TABLE DE TRAVAIL" avec mise en forme de la table nouvellement créé.**
 
 On crée une nouvelle table "jointureGeoMagasins" avec jointure (left join) entre la table MAGASINS et la "TABLE DE TRAVAIL". Cette nouvelle table est ensuite mise en forme. Cette mise en forme inclut le renommage de certaines colonnes et l'ajout des informations manquantes de localisation dans la table MAGASINS pour la ville "LES MILLES" qui n'est pas répertoriée dans le tableau de l'INSEE.
 
-**Etape 4 : Jointure entre les tables "CLIENTS" et "TABLE DE TRAVAIL" avec mise en forme de la table nouvellement créé.**
+**Étape 4 : Jointure entre les tables "CLIENTS" et "TABLE DE TRAVAIL" avec mise en forme de la table nouvellement créé.**
 
 On crée une table "jointureGeoClients"" avec jointure (left join encore une fois) entre la table CLIENTS et la TABLE DE TRAVAIL, elle est ensuite mise en forme.
 
-**Etape 5 : Jointure entre les tables "jointureGeoMagasins" et "jointureGeoClients".**
+**Étape 5 : Jointure entre les tables "jointureGeoMagasins" et "jointureGeoClients".**
 
 Cette jointure finale "jointureGeoMagasinsClients" va permettre d'effectuer le calcul de la distance entre chacun des clients de l'enseigne et le magasin dans lequel ils sont inscrits.
 
-**Etape 6 : Calcul de la distance.**
+**Étape 6 : Calcul de la distance.**
 
 Pour le calcul de la distance entre 2 points géographiques, on a créé la fonction **distanceGeo((lat1, lon1, lat2, lon2)**.
 Cette fonction utilise la [FORMULE DE HAVERSINE](https://fr.wikipedia.org/wiki/Formule_de_haversine) en l'état.
 Elle renvoie *exactement* les mêmes valeurs que celles retournées sur le site [LEXILOGOS](http://www.lexilogos.com/calcul_distances.htm).
 
-**Etape 7 : Affichage du résultat au format tableau**
+**Étape 7 : Affichage du résultat au format tableau**
 
 Une fois la distance calculée pour chaque client, et après que l'affectation des modalités aux distances D1 à D6 ait été effectuée, nous affichons les résultats de la table "jointureGeoMagasinsClients" dans une figure au format tableau, en utilisant la library formattable.
 
